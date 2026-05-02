@@ -1,670 +1,355 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Excel Agent</title>
-  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js" type="text/javascript"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg:         #0F172A;
-      --surface:    #1E293B;
-      --card:       #253447;
-      --border:     #334155;
-      --border-lg:  #475569;
-      --text:       #F1F5F9;
-      --muted:      #94A3B8;
-      --hint:       #64748B;
-      --blue:       #3B82F6;
-      --blue-dim:   #1D4ED8;
-      --blue-glow:  rgba(59,130,246,0.18);
-      --green:      #10B981;
-      --red:        #EF4444;
-      --amber:      #F59E0B;
-      --mono:       'JetBrains Mono', monospace;
-      --sans:       'Inter', sans-serif;
-      --r:          8px;
-      --r-lg:       12px;
-    }
-
-    html, body {
-      height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--sans);
-      font-size: 13px;
-      line-height: 1.5;
-      overflow-x: hidden;
-    }
-
-    /* ── Layout ─────────────────────────────────────────── */
-    .app { display: flex; flex-direction: column; height: 100vh; }
-
-    /* ── Header ─────────────────────────────────────────── */
-    .header {
-      padding: 14px 16px 12px;
-      border-bottom: 1px solid var(--border);
-      background: var(--surface);
-      display: flex; align-items: center; gap: 10px;
-    }
-    .logo {
-      width: 28px; height: 28px;
-      background: var(--blue);
-      border-radius: 7px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px; flex-shrink: 0;
-    }
-    .header-text h1 { font-size: 13px; font-weight: 600; color: var(--text); }
-    .header-text p  { font-size: 10px; color: var(--muted); margin-top: 1px; }
-    .status-dot {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: var(--green); margin-left: auto; flex-shrink: 0;
-      box-shadow: 0 0 6px var(--green);
-    }
-    .status-dot.off { background: var(--hint); box-shadow: none; }
-
-    /* ── Scroll body ────────────────────────────────────── */
-    .body { flex: 1; overflow-y: auto; padding: 14px 14px 0; }
-    .body::-webkit-scrollbar { width: 4px; }
-    .body::-webkit-scrollbar-track { background: transparent; }
-    .body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-
-    /* ── Sections ───────────────────────────────────────── */
-    .section { margin-bottom: 14px; }
-    .label {
-      font-size: 10px; font-weight: 600; letter-spacing: .08em;
-      text-transform: uppercase; color: var(--hint);
-      margin-bottom: 6px; display: flex; align-items: center; gap: 5px;
-    }
-
-    /* ── Inputs ─────────────────────────────────────────── */
-    input[type="text"], input[type="password"], textarea, select {
-      width: 100%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      color: var(--text);
-      font-family: var(--sans);
-      font-size: 12px;
-      padding: 8px 10px;
-      transition: border-color .15s, box-shadow .15s;
-      outline: none;
-    }
-    input[type="password"] { font-family: var(--mono); letter-spacing: .05em; }
-    input:focus, textarea:focus {
-      border-color: var(--blue);
-      box-shadow: 0 0 0 3px var(--blue-glow);
-    }
-    textarea { resize: vertical; min-height: 72px; line-height: 1.55; }
-
-    /* ── Key row ────────────────────────────────────────── */
-    .key-row { display: flex; gap: 6px; }
-    .key-row input { flex: 1; }
-    .btn-icon {
-      width: 34px; height: 34px; flex-shrink: 0;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--r); color: var(--muted); cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px; transition: all .15s;
-    }
-    .btn-icon:hover { border-color: var(--blue); color: var(--blue); }
-    .btn-icon.saved { border-color: var(--green); color: var(--green); }
-
-    /* ── Quick actions ──────────────────────────────────── */
-    .quick-grid {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 6px;
-    }
-    .quick-btn {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--r); padding: 7px 8px;
-      color: var(--muted); font-size: 11px; font-family: var(--sans);
-      cursor: pointer; text-align: left; transition: all .15s;
-      display: flex; align-items: center; gap: 5px;
-    }
-    .quick-btn:hover { border-color: var(--blue); color: var(--text); background: var(--card); }
-    .quick-btn .qicon { font-size: 13px; flex-shrink: 0; }
-
-    /* ── Run button ─────────────────────────────────────── */
-    .btn-run {
-      width: 100%;
-      background: var(--blue);
-      border: none; border-radius: var(--r);
-      color: #fff; font-family: var(--sans);
-      font-size: 13px; font-weight: 600;
-      padding: 10px;
-      cursor: pointer;
-      transition: all .2s;
-      display: flex; align-items: center; justify-content: center; gap: 7px;
-    }
-    .btn-run:hover { background: var(--blue-dim); transform: translateY(-1px); }
-    .btn-run:active { transform: translateY(0); }
-    .btn-run:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-    .btn-run .spinner {
-      width: 14px; height: 14px;
-      border: 2px solid rgba(255,255,255,.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ── Log ────────────────────────────────────────────── */
-    .log-wrap {
-      background: #060D18;
-      border: 1px solid var(--border);
-      border-radius: var(--r-lg);
-      overflow: hidden;
-    }
-    .log-titlebar {
-      background: var(--surface); padding: 7px 12px;
-      display: flex; align-items: center; gap: 6px;
-      border-bottom: 1px solid var(--border);
-    }
-    .log-titlebar span { font-size: 10px; font-weight: 600; color: var(--hint); letter-spacing: .08em; text-transform: uppercase; }
-    .log-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border-lg); }
-    .log-dot.r { background: #EF4444; } .log-dot.y { background: #F59E0B; } .log-dot.g { background: #10B981; }
-    .log-body {
-      padding: 10px 12px; min-height: 90px; max-height: 160px;
-      overflow-y: auto; font-family: var(--mono); font-size: 11px; line-height: 1.75;
-    }
-    .log-body::-webkit-scrollbar { width: 3px; }
-    .log-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-    .log-line { display: flex; gap: 8px; }
-    .log-line .ts { color: var(--hint); flex-shrink: 0; }
-    .log-line.info .msg  { color: #60A5FA; }
-    .log-line.ok   .msg  { color: #34D399; }
-    .log-line.warn .msg  { color: #FBBF24; }
-    .log-line.err  .msg  { color: #F87171; }
-    .log-line.dim  .msg  { color: var(--hint); }
-
-    /* ── Result banner ──────────────────────────────────── */
-    .result-banner {
-      display: none; margin-bottom: 14px;
-      border-radius: var(--r); padding: 9px 12px;
-      font-size: 12px; font-weight: 500;
-      border: 1px solid;
-    }
-    .result-banner.success { background: rgba(16,185,129,.1); border-color: rgba(16,185,129,.3); color: #34D399; }
-    .result-banner.error   { background: rgba(239,68,68,.1);  border-color: rgba(239,68,68,.3);  color: #F87171; }
-    .result-banner.show    { display: block; }
-
-    /* ── Retry badge ────────────────────────────────────── */
-    .retry-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
-    .retry-pip {
-      width: 6px; height: 6px; border-radius: 50%; background: var(--border);
-      transition: background .3s;
-    }
-    .retry-pip.active { background: var(--amber); box-shadow: 0 0 5px var(--amber); }
-    .retry-pip.done   { background: var(--green); }
-    .retry-pip.fail   { background: var(--red); }
-    .retry-label { font-size: 10px; color: var(--hint); }
-
-    /* ── Sheet info pill ────────────────────────────────── */
-    .sheet-pill {
-      display: inline-flex; align-items: center; gap: 5px;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 99px; padding: 3px 9px; font-size: 11px; color: var(--muted);
-    }
-    .sheet-pill .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
-
-    /* ── Footer ─────────────────────────────────────────── */
-    .footer {
-      padding: 10px 14px;
-      border-top: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .footer-left { font-size: 10px; color: var(--hint); }
-    .btn-clear {
-      background: none; border: 1px solid var(--border);
-      border-radius: 6px; color: var(--hint);
-      font-size: 10px; padding: 4px 9px; cursor: pointer;
-      transition: all .15s;
-    }
-    .btn-clear:hover { border-color: var(--red); color: var(--red); }
-
-    /* ── Divider ────────────────────────────────────────── */
-    .divider { height: 1px; background: var(--border); margin: 4px 0 14px; }
-  </style>
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AI Excel Agent</title>
+<script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Segoe UI,Arial,sans-serif;background:#0F172A;color:#F1F5F9;font-size:13px}
+.header{background:#1E293B;border-bottom:1px solid #334155;padding:12px 14px}
+.logo-row{display:-ms-flexbox;display:flex;-ms-flex-align:center;align-items:center;gap:10px}
+.logo{background:#3B82F6;width:28px;height:28px;border-radius:7px;text-align:center;line-height:28px;font-size:14px}
+.header h1{font-size:13px;font-weight:600;color:#F1F5F9}
+.header p{font-size:10px;color:#94A3B8;margin-top:1px}
+.body{padding:14px}
+.section{margin-bottom:14px}
+.lbl{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#64748B;margin-bottom:6px}
+input,textarea{width:100%;background:#1E293B;border:1px solid #334155;border-radius:6px;color:#F1F5F9;font-family:Segoe UI,Arial,sans-serif;font-size:12px;padding:8px 10px}
+textarea{min-height:70px;line-height:1.5}
+.key-row{display:-ms-flexbox;display:flex;gap:6px}
+.key-row input{-ms-flex:1;flex:1}
+.btn-save{width:34px;height:34px;background:#1E293B;border:1px solid #334155;border-radius:6px;color:#94A3B8;cursor:pointer;font-size:14px}
+.grid{display:-ms-flexbox;display:flex;-ms-flex-wrap:wrap;flex-wrap:wrap;gap:6px}
+.qbtn{background:#1E293B;border:1px solid #334155;border-radius:6px;padding:7px 9px;color:#94A3B8;font-size:11px;cursor:pointer;width:calc(50% - 3px);text-align:left;font-family:Segoe UI,Arial,sans-serif}
+.btn-run{width:100%;background:#3B82F6;border:none;border-radius:6px;color:#fff;font-size:13px;font-weight:600;padding:11px;cursor:pointer;font-family:Segoe UI,Arial,sans-serif}
+.btn-run:disabled{opacity:.5;cursor:not-allowed}
+.log-wrap{background:#060D18;border:1px solid #334155;border-radius:8px;overflow:hidden}
+.log-bar{background:#1E293B;padding:7px 12px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#64748B;border-bottom:1px solid #334155}
+.log-body{padding:10px 12px;min-height:90px;max-height:160px;overflow-y:auto;font-family:'Courier New',monospace;font-size:11px;line-height:1.8}
+.l-info{color:#60A5FA;display:block}
+.l-ok{color:#34D399;display:block}
+.l-warn{color:#FBBF24;display:block}
+.l-err{color:#F87171;display:block}
+.l-dim{color:#64748B;display:block}
+.banner{display:none;margin-bottom:12px;border-radius:6px;padding:9px 12px;font-size:12px;font-weight:500;border:1px solid}
+.b-ok{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.35);color:#34D399}
+.b-err{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.35);color:#F87171}
+.note{font-size:10px;color:#64748B;margin-top:5px}
+</style>
 </head>
 <body>
-<div class="app">
 
-  <!-- Header -->
-  <div class="header">
-    <div class="logo">⚡</div>
-    <div class="header-text">
+<div class="header">
+  <div class="logo-row">
+    <div class="logo">&#9889;</div>
+    <div>
       <h1>AI Excel Agent</h1>
-      <p>Gemini-powered · Free · Self-healing</p>
+      <p>Gemini-powered &bull; Free &bull; Self-healing</p>
     </div>
-    <div class="status-dot off" id="statusDot"></div>
+  </div>
+</div>
+
+<div class="body">
+
+  <div class="section">
+    <div class="lbl">&#128273; Gemini API Key (free)</div>
+    <div class="key-row">
+      <input type="password" id="apiKey" placeholder="AIza...  get free key at aistudio.google.com"/>
+      <button class="btn-save" id="saveBtn" onclick="saveKey()">&#128190;</button>
+    </div>
+    <div class="note">Free tier: 15 req/min &bull; 1 million tokens/day &bull; no credit card needed</div>
   </div>
 
-  <!-- Scrollable body -->
-  <div class="body">
-
-    <!-- Sheet info -->
-    <div class="section" id="sheetInfoSection" style="display:none">
-      <div class="sheet-pill">
-        <div class="dot"></div>
-        <span id="sheetName">Sheet1</span>
-        <span style="color:var(--hint)">·</span>
-        <span id="sheetDims" style="color:var(--hint)">—</span>
-      </div>
-    </div>
-
-    <!-- API Key -->
-    <div class="section">
-      <div class="label">🔑 Gemini API Key <span style="color:var(--green);font-weight:400;text-transform:none;letter-spacing:0">(free)</span></div>
-      <div class="key-row">
-        <input type="password" id="apiKey" placeholder="AIza…  — get free key at aistudio.google.com" />
-        <button class="btn-icon" id="saveKeyBtn" title="Save key" onclick="saveKey()">💾</button>
-      </div>
-      <div style="margin-top:5px;font-size:10px;color:var(--hint)">
-        Free tier: 15 req/min · 1 million tokens/day · no credit card needed
-      </div>
-    </div>
-
-    <!-- Command -->
-    <div class="section">
-      <div class="label">💬 What should the agent do?</div>
-      <textarea id="queryInput" placeholder="e.g. Make headers bold with dark blue fill and white text, auto-fit all columns, freeze the top row, and add alternating row colours"></textarea>
-    </div>
-
-    <!-- Quick actions -->
-    <div class="section">
-      <div class="label">⚡ Quick actions</div>
-      <div class="quick-grid">
-        <button class="quick-btn" onclick="setQuery('Format headers: dark fill, white bold text, auto-fit columns, freeze row 1')"><span class="qicon">🎨</span>Style headers</button>
-        <button class="quick-btn" onclick="setQuery('Add alternating row colours: light blue for odd rows, white for even rows. Add thin borders on all cells.')"><span class="qicon">🦓</span>Zebra stripes</button>
-        <button class="quick-btn" onclick="setQuery('Add a bar chart showing the data from this sheet. Place it below the data.')"><span class="qicon">📊</span>Add bar chart</button>
-        <button class="quick-btn" onclick="setQuery('Add conditional formatting: green fill for the top 10% values, red fill for the bottom 10% in all numeric columns.')"><span class="qicon">🌡️</span>Heat colours</button>
-        <button class="quick-btn" onclick="setQuery('Sort the data by the first numeric column in descending order. Add a rank number in a new column A.')"><span class="qicon">🔢</span>Sort + rank</button>
-        <button class="quick-btn" onclick="setQuery('Create a new sheet called Summary with totals, averages, min and max for each numeric column, beautifully formatted.')"><span class="qicon">📋</span>Summary sheet</button>
-        <button class="quick-btn" onclick="setQuery('Format all number columns as currency with 2 decimal places. Format all date columns as DD/MM/YYYY.')"><span class="qicon">💲</span>Fix formats</button>
-        <button class="quick-btn" onclick="setQuery('Add a totals row at the bottom with SUM formulas for every numeric column. Make it bold with a dark fill.')"><span class="qicon">➕</span>Totals row</button>
-      </div>
-    </div>
-
-    <!-- Retry indicators -->
-    <div class="retry-row" id="retryRow" style="display:none">
-      <div class="retry-pip" id="pip1"></div>
-      <div class="retry-pip" id="pip2"></div>
-      <div class="retry-pip" id="pip3"></div>
-      <span class="retry-label" id="retryLabel">Attempting…</span>
-    </div>
-
-    <!-- Run button -->
-    <div class="section">
-      <button class="btn-run" id="runBtn" onclick="runAgent()">
-        <span id="runIcon">⚡</span>
-        <span id="runLabel">Execute Task</span>
-      </button>
-    </div>
-
-    <!-- Result banner -->
-    <div class="result-banner" id="resultBanner"></div>
-
-    <!-- Log -->
-    <div class="section">
-      <div class="log-wrap">
-        <div class="log-titlebar">
-          <div class="log-dot r"></div><div class="log-dot y"></div><div class="log-dot g"></div>
-          <span style="margin-left:6px">agent log</span>
-        </div>
-        <div class="log-body" id="logBody">
-          <div class="log-line dim"><span class="ts">—</span><span class="msg">Waiting for task…</span></div>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /body -->
-
-  <!-- Footer -->
-  <div class="footer">
-    <span class="footer-left" id="footerInfo">Ready</span>
-    <button class="btn-clear" onclick="clearAll()">Clear log</button>
+  <div class="section">
+    <div class="lbl">&#128172; What should the agent do?</div>
+    <textarea id="queryBox" placeholder="e.g. Average all marks of tutorials and practicals, add totals row, style headers dark blue bold white text"></textarea>
   </div>
 
-</div><!-- /app -->
+  <div class="section">
+    <div class="lbl">&#9889; Quick actions</div>
+    <div class="grid">
+      <button class="qbtn" onclick="setQ('Format headers: dark navy fill, white bold text size 11, auto-fit all columns, freeze row 1')">&#127912; Style headers</button>
+      <button class="qbtn" onclick="setQ('Add alternating row colours: very light blue for odd rows, white for even rows. Add thin grey borders on all cells.')">&#129443; Zebra stripes</button>
+      <button class="qbtn" onclick="setQ('Add a clustered bar chart using the data in this sheet. Place it two rows below the last data row.')">&#128202; Bar chart</button>
+      <button class="qbtn" onclick="setQ('Add a colour scale conditional format on all numeric columns: green for highest values, red for lowest values.')">&#127777; Heat colours</button>
+      <button class="qbtn" onclick="setQ('Sort all data by the first numeric column in descending order. Add a Rank column as the first column.')">&#128290; Sort + rank</button>
+      <button class="qbtn" onclick="setQ('Create a new sheet called Summary with total, average, min and max for every numeric column, with professional dark header formatting.')">&#128203; Summary sheet</button>
+      <button class="qbtn" onclick="setQ('Format all numeric columns as numbers with 2 decimal places. Format any date columns as DD/MM/YYYY.')">&#128178; Fix formats</button>
+      <button class="qbtn" onclick="setQ('Add a Totals row at the very bottom with SUM formula for every numeric column. Make it bold with dark background and white text.')">&#43; Totals row</button>
+    </div>
+  </div>
+
+  <div class="banner" id="banner"></div>
+
+  <div class="section">
+    <button class="btn-run" id="runBtn" onclick="runAgent()">&#9889; Execute Task</button>
+  </div>
+
+  <div class="section">
+    <div class="log-wrap">
+      <div class="log-bar">&#9679;&#9679;&#9679;&nbsp;&nbsp;agent log</div>
+      <div class="log-body" id="logBody">
+        <span class="l-dim">-- Waiting for task...</span>
+      </div>
+    </div>
+  </div>
+
+</div>
 
 <script>
-// ─────────────────────────────────────────────────────────
-// GEMINI CONFIG
-// ─────────────────────────────────────────────────────────
-const GEMINI_URL = key =>
-  `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
+var running = false;
+var GURL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=';
 
-const SYSTEM_PROMPT = `You are an elite Excel automation engineer. Write Office.js JavaScript code to fulfill the user's Excel task.
+var SYS = 'You are an expert Excel Office.js automation engineer.\n' +
+'Write code that goes INSIDE Excel.run(async (context) => { YOUR CODE HERE }).\n\n' +
+'STRICT RULES:\n' +
+'1. Output ONLY raw JavaScript code. No markdown. No backticks. No explanations.\n' +
+'2. Use var (not const/let) for IE11 compatibility.\n' +
+'3. Always load properties before reading. Always call await context.sync() after loading and after making changes.\n' +
+'4. Get sheet: var sheet = context.workbook.worksheets.getActiveWorksheet();\n' +
+'5. Get data: var range = sheet.getUsedRange(); range.load(["values","rowCount","columnCount","address"]); await context.sync();\n' +
+'6. Design colours: header="#1E293B" headerText="#FFFFFF" zebraA="#F8FAFC" zebraB="#EFF6FF" border="#CBD5E1" accent="#3B82F6"\n' +
+'7. After formatting: range.format.autofitColumns();\n' +
+'8. After header format: sheet.freezePanes.freezeRows(1);\n' +
+'9. For cell borders use: var borders = cell.format.borders; borders.getItem("EdgeTop").style = "Continuous"; borders.getItem("EdgeTop").color = "#CBD5E1"; (repeat for EdgeBottom, EdgeLeft, EdgeRight)\n' +
+'10. Always end with: await context.sync();\n' +
+'11. Do NOT use fetch, XMLHttpRequest, or any network calls inside the code.\n' +
+'12. Do NOT use const or let — only var.\n';
 
-CRITICAL RULES:
-1. Output ONLY raw JavaScript code. Zero markdown, zero backticks, zero explanations, zero comments.
-2. Your code runs INSIDE Excel.run(async (context) => { YOUR CODE HERE }).
-3. Always load properties before using them. Always call await context.sync() after loads and after changes.
-4. Use const sheet = context.workbook.worksheets.getActiveWorksheet(); to get the active sheet.
-5. Use const range = sheet.getUsedRange(); range.load(["values","rowCount","columnCount","address"]); await context.sync(); to get data.
-6. Make outputs visually spectacular using these colours:
-   DARK_HEADER = "#1E293B"  WHITE_TEXT = "#FFFFFF"  BLUE_ACCENT = "#3B82F6"
-   ZEBRA_A = "#F8FAFC"  ZEBRA_B = "#EFF6FF"  BORDER = "#CBD5E1"
-7. Always autofit columns: range.format.autofitColumns();
-8. Always freeze header row if formatting: sheet.freezePanes.freezeRows(1);
-9. For borders use: const b = cell.format.borders; b.getItem("EdgeTop").style="Continuous"; b.getItem("EdgeBottom").style="Continuous"; b.getItem("EdgeLeft").style="Continuous"; b.getItem("EdgeRight").style="Continuous"; b.getItem("EdgeTop").color="#CBD5E1";
-10. End with await context.sync();
-
-COMMON PATTERNS YOU MUST FOLLOW:
-// Get cell range by index (0-based row, 0-based col):
-  sheet.getRangeByIndexes(rowIndex, colIndex, rowCount, colCount)
-// Set fill:
-  range.format.fill.color = "#1E293B";
-// Set font:
-  range.format.font.bold = true; range.format.font.color = "#FFFFFF"; range.format.font.size = 11;
-// Set alignment:
-  range.format.horizontalAlignment = "Center";
-// Number format:
-  range.numberFormat = [["$#,##0.00"]]; // must be 2D array matching range dimensions
-// Add table:
-  const table = sheet.tables.add(usedRange.address, true);
-  table.style = "TableStyleMedium2";
-// Create chart:
-  const chart = sheet.charts.add("ColumnClustered", dataRange, "Auto");
-  chart.setPosition("A" + (lastRow + 2), "H" + (lastRow + 20));
-  chart.title.text = "Chart Title";
-// Conditional format - colour scale:
-  const cf = range.conditionalFormats.add("ColorScale");
-  cf.colorScale.criteria = {minimum:{formula:null,type:"LowestValue",color:"#F87171"}, maximum:{formula:null,type:"HighestValue",color:"#34D399"}};`;
-
-// ─────────────────────────────────────────────────────────
-// STATE
-// ─────────────────────────────────────────────────────────
-let running = false;
-
-// ─────────────────────────────────────────────────────────
-// OFFICE INIT
-// ─────────────────────────────────────────────────────────
-Office.onReady(info => {
+Office.onReady(function(info) {
   if (info.host === Office.HostType.Excel) {
-    document.getElementById('statusDot').classList.remove('off');
-    loadSavedKey();
-    refreshSheetInfo();
+    loadKey();
   }
 });
 
-async function refreshSheetInfo() {
+function saveKey() {
+  var key = document.getElementById('apiKey').value;
+  if (!key || !key.trim()) { addLog('err', 'Please enter your API key first'); return; }
+  try { localStorage.setItem('gkey', key.trim()); } catch(e) {}
+  var btn = document.getElementById('saveBtn');
+  btn.innerHTML = '&#10003;';
+  btn.style.color = '#34D399';
+  btn.style.borderColor = '#34D399';
+  setTimeout(function() {
+    btn.innerHTML = '&#128190;';
+    btn.style.color = '';
+    btn.style.borderColor = '';
+  }, 1500);
+  addLog('ok', 'API key saved successfully');
+}
+
+function loadKey() {
   try {
-    await Excel.run(async ctx => {
-      const sheet = ctx.workbook.worksheets.getActiveWorksheet();
-      const range = sheet.getUsedRange();
-      sheet.load('name');
-      range.load(['rowCount','columnCount']);
-      await ctx.sync();
-      document.getElementById('sheetName').textContent = sheet.name;
-      document.getElementById('sheetDims').textContent = `${range.rowCount} rows × ${range.columnCount} cols`;
-      document.getElementById('sheetInfoSection').style.display = '';
-    });
+    var k = localStorage.getItem('gkey');
+    if (k) { document.getElementById('apiKey').value = k; }
   } catch(e) {}
 }
 
-// ─────────────────────────────────────────────────────────
-// KEY MANAGEMENT
-// ─────────────────────────────────────────────────────────
-function saveKey() {
-  const key = document.getElementById('apiKey').value.trim();
-  if (!key) return;
-  localStorage.setItem('gemini_api_key', key);
-  const btn = document.getElementById('saveKeyBtn');
-  btn.textContent = '✅';
-  btn.classList.add('saved');
-  setTimeout(() => { btn.textContent = '💾'; btn.classList.remove('saved'); }, 1500);
-  log('info', 'API key saved to local storage');
+function setQ(text) {
+  document.getElementById('queryBox').value = text;
+  document.getElementById('queryBox').focus();
 }
 
-function loadSavedKey() {
-  const saved = localStorage.getItem('gemini_api_key');
-  if (saved) document.getElementById('apiKey').value = saved;
-}
-
-// ─────────────────────────────────────────────────────────
-// QUICK ACTIONS
-// ─────────────────────────────────────────────────────────
-function setQuery(text) {
-  document.getElementById('queryInput').value = text;
-  document.getElementById('queryInput').focus();
-}
-
-// ─────────────────────────────────────────────────────────
-// LOGGING
-// ─────────────────────────────────────────────────────────
-function log(type, msg) {
-  const body = document.getElementById('logBody');
-  const now = new Date();
-  const ts = now.toTimeString().slice(0,8);
-  const line = document.createElement('div');
-  line.className = `log-line ${type}`;
-  line.innerHTML = `<span class="ts">${ts}</span><span class="msg">${escHtml(msg)}</span>`;
-  if (body.querySelector('.log-line.dim')) body.innerHTML = '';
-  body.appendChild(line);
+function addLog(type, msg) {
+  var body = document.getElementById('logBody');
+  if (body.innerHTML.indexOf('Waiting') !== -1) { body.innerHTML = ''; }
+  var d = document.createElement('span');
+  d.className = 'l-' + type;
+  var now = new Date();
+  var ts = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+  d.innerHTML = '<span style="color:#64748B">' + ts + '</span> ' + esc(msg);
+  body.appendChild(d);
   body.scrollTop = body.scrollHeight;
 }
 
-function escHtml(s) {
+function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-// ─────────────────────────────────────────────────────────
-// RETRY PIPS
-// ─────────────────────────────────────────────────────────
-function setPip(n, state) {
-  const pip = document.getElementById(`pip${n}`);
-  if (pip) { pip.className = 'retry-pip ' + state; }
-}
-function showRetry(show) {
-  document.getElementById('retryRow').style.display = show ? 'flex' : 'none';
-}
-function setRetryLabel(txt) {
-  document.getElementById('retryLabel').textContent = txt;
+function showBanner(type, msg) {
+  var el = document.getElementById('banner');
+  el.className = 'banner ' + (type === 'ok' ? 'b-ok' : 'b-err');
+  el.style.display = 'block';
+  el.innerHTML = msg;
 }
 
-// ─────────────────────────────────────────────────────────
-// RESULT BANNER
-// ─────────────────────────────────────────────────────────
-function showResult(type, msg) {
-  const el = document.getElementById('resultBanner');
-  el.className = `result-banner ${type} show`;
-  el.textContent = msg;
-}
-function hideResult() {
-  document.getElementById('resultBanner').className = 'result-banner';
+function hideBanner() {
+  document.getElementById('banner').style.display = 'none';
 }
 
-// ─────────────────────────────────────────────────────────
-// GET SCHEMA FROM ACTIVE SHEET
-// ─────────────────────────────────────────────────────────
-async function getSheetSchema() {
-  return Excel.run(async ctx => {
-    const sheet = ctx.workbook.worksheets.getActiveWorksheet();
-    const range = sheet.getUsedRange();
+function setBusy(on) {
+  var btn = document.getElementById('runBtn');
+  btn.disabled = on;
+  btn.innerHTML = on ? '&#9203; Agent running...' : '&#9889; Execute Task';
+}
+
+function getSchema() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
     sheet.load('name');
-    range.load(['values','rowCount','columnCount','address']);
-    await ctx.sync();
-
-    const vals = range.values;
-    const headers = vals[0] || [];
-    const sample = vals.slice(1, 4);
-
-    // Detect column types
-    const types = headers.map((h, ci) => {
-      const samples = sample.map(r => r[ci]).filter(v => v !== '' && v !== null);
-      if (samples.length === 0) return 'empty';
-      if (samples.every(v => typeof v === 'number')) return 'number';
-      if (samples.every(v => typeof v === 'boolean')) return 'boolean';
-      return 'text';
+    range.load(['values', 'rowCount', 'columnCount', 'address']);
+    return ctx.sync().then(function() {
+      var vals = range.values;
+      var headers = vals.length > 0 ? vals[0] : [];
+      var sample = vals.slice(1, 5);
+      var types = {};
+      var i, r;
+      for (i = 0; i < headers.length; i++) {
+        var nums = 0;
+        for (r = 0; r < sample.length; r++) {
+          if (typeof sample[r][i] === 'number') nums++;
+        }
+        types[String(headers[i])] = nums > 0 ? 'number' : 'text';
+      }
+      return {
+        sheetName: sheet.name,
+        address: range.address,
+        rowCount: range.rowCount,
+        columnCount: range.columnCount,
+        headers: headers,
+        columnTypes: types,
+        sample: sample
+      };
     });
-
-    return {
-      sheetName: sheet.name,
-      address: range.address,
-      rowCount: range.rowCount,
-      columnCount: range.columnCount,
-      headers,
-      columnTypes: Object.fromEntries(headers.map((h,i) => [h, types[i]])),
-      sampleRows: sample,
-      totalDataRows: range.rowCount - 1
-    };
   });
 }
 
-// ─────────────────────────────────────────────────────────
-// CALL GEMINI
-// ─────────────────────────────────────────────────────────
-async function callGemini(apiKey, query, schema, errorFeedback = '') {
-  let userContent = `Sheet schema:\n${JSON.stringify(schema, null, 2)}\n\nUser task: ${query}`;
-  if (errorFeedback) {
-    userContent += `\n\nYOUR PREVIOUS CODE FAILED WITH THIS ERROR — fix it completely:\n${errorFeedback}\n\nRewrite from scratch. Output ONLY raw JS code.`;
+function callGemini(key, query, schema, prevError, cb) {
+  var userMsg = 'Sheet info:\n' + JSON.stringify(schema, null, 2) + '\n\nTask: ' + query;
+  if (prevError) {
+    userMsg += '\n\nPREVIOUS ATTEMPT FAILED WITH THIS ERROR - fix it:\n' + prevError.substring(0, 1500) + '\n\nRewrite the ENTIRE code from scratch. ONLY output raw JavaScript.';
   }
 
-  const res = await fetch(GEMINI_URL(apiKey), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-      contents: [{ parts: [{ text: userContent }] }],
-      generationConfig: { temperature: 0.05, maxOutputTokens: 4096 }
-    })
+  var payload = JSON.stringify({
+    system_instruction: { parts: [{ text: SYS }] },
+    contents: [{ parts: [{ text: userMsg }] }],
+    generationConfig: { temperature: 0.05, maxOutputTokens: 4096 }
   });
 
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(`Gemini API error ${res.status}: ${err?.error?.message || res.statusText}`);
+  var xhr;
+  try {
+    xhr = new XMLHttpRequest();
+  } catch(e) {
+    cb('Cannot create request: ' + e.message, null); return;
   }
 
-  const data = await res.json();
-  let code = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  xhr.open('POST', GURL + key, true);
+  xhr.setRequestHeader('Content-Type', 'application/json');
 
-  // Strip markdown if present
-  code = code.replace(/```(?:javascript|js)?\n?/g, '').replace(/```/g, '').trim();
-  return code;
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState !== 4) return;
+    if (xhr.status === 0) { cb('Network error — check internet connection', null); return; }
+    if (xhr.status !== 200) {
+      var em = 'API error ' + xhr.status;
+      try { var ed = JSON.parse(xhr.responseText); if (ed && ed.error) em += ': ' + ed.error.message; } catch(pe) {}
+      cb(em, null); return;
+    }
+    try {
+      var data = JSON.parse(xhr.responseText);
+      var code = data.candidates[0].content.parts[0].text || '';
+      code = code.replace(/```javascript[\r\n]?/gi, '').replace(/```js[\r\n]?/gi, '').replace(/```[\r\n]?/g, '').trim();
+      cb(null, code);
+    } catch(pe) {
+      cb('Could not parse Gemini response: ' + pe.message, null);
+    }
+  };
+
+  try { xhr.send(payload); }
+  catch(e) { cb('Send error: ' + e.message, null); }
 }
 
-// ─────────────────────────────────────────────────────────
-// EXECUTE OFFICE.JS CODE
-// ─────────────────────────────────────────────────────────
-async function executeCode(code) {
-  // Wrap in Excel.run
-  const wrappedFn = new Function('Excel', `
-    return Excel.run(async (context) => {
-      ${code}
+function doExec(code) {
+  return Excel.run(function(context) {
+    try {
+      var fn = new Function('context', code + '\nreturn Promise.resolve();');
+      return fn(context).then(function() {
+        return context.sync();
+      });
+    } catch(e) {
+      return Promise.reject(e);
+    }
+  });
+}
+
+function attempt(key, query, schema, prevErr, n) {
+  var MAX = 3;
+  addLog('info', 'Attempt ' + n + '/' + MAX + ' - asking Gemini...');
+
+  callGemini(key, query, schema, prevErr, function(genErr, code) {
+    if (genErr) {
+      addLog('err', 'Gemini: ' + genErr);
+      if (n < MAX) {
+        addLog('warn', 'Retrying in 2 seconds...');
+        setTimeout(function() { attempt(key, query, schema, genErr, n + 1); }, 2000);
+      } else {
+        done(false, 'All attempts failed. Check your API key at aistudio.google.com');
+      }
+      return;
+    }
+
+    addLog('ok', 'Code received - running in Excel...');
+
+    doExec(code).then(function() {
+      addLog('ok', 'SUCCESS! Task completed on attempt ' + n);
+      showBanner('ok', '&#10003; Done! Your Excel sheet has been updated.');
+      setBusy(false);
+      running = false;
+    }, function(execErr) {
+      var em = execErr.message || String(execErr);
+      addLog('warn', 'Exec error: ' + em.substring(0, 120));
+      if (n < MAX) {
+        addLog('info', 'Self-repairing - attempt ' + (n+1) + '...');
+        attempt(key, query, schema, em, n + 1);
+      } else {
+        done(false, 'Failed after 3 attempts. Try a simpler command.');
+      }
     });
-  `);
-  await wrappedFn(Excel);
+  });
 }
 
-// ─────────────────────────────────────────────────────────
-// MAIN AGENT LOOP
-// ─────────────────────────────────────────────────────────
-async function runAgent() {
+function done(ok, msg) {
+  if (!ok) { addLog('err', msg); showBanner('err', '&#10060; ' + msg); }
+  setBusy(false);
+  running = false;
+}
+
+function runAgent() {
   if (running) return;
 
-  const apiKey = document.getElementById('apiKey').value.trim();
-  const query  = document.getElementById('queryInput').value.trim();
+  var key = document.getElementById('apiKey').value.trim();
+  var query = document.getElementById('queryBox').value.trim();
 
-  if (!apiKey) { log('err', 'Enter a Gemini API key first'); showResult('error', '⚠️  No API key — get one free at aistudio.google.com'); return; }
-  if (!query)  { log('err', 'Describe the task first'); return; }
+  if (!key) {
+    showBanner('err', '&#9888; Enter your Gemini API key first');
+    addLog('err', 'No API key entered');
+    return;
+  }
+  if (!query) {
+    addLog('err', 'Please type a task or click a quick action');
+    return;
+  }
 
   running = true;
-  hideResult();
-  setRunning(true);
-  showRetry(true);
-  log('info', `Task: ${query.slice(0,60)}${query.length > 60 ? '…' : ''}`);
+  hideBanner();
+  setBusy(true);
+  addLog('info', 'Starting: ' + query.substring(0, 55) + (query.length > 55 ? '...' : ''));
 
-  const MAX = 3;
-  let errorFeedback = '';
-  let schema;
-
-  try {
-    log('dim', 'Reading sheet schema…');
-    schema = await getSheetSchema();
-    log('info', `Sheet "${schema.sheetName}" — ${schema.rowCount} rows × ${schema.columnCount} cols`);
-    await refreshSheetInfo();
-  } catch(e) {
-    log('err', `Cannot read sheet: ${e.message}`);
-    showResult('error', '❌  Could not read the sheet. Is a workbook open?');
-    setRunning(false); running = false; showRetry(false); return;
-  }
-
-  for (let attempt = 1; attempt <= MAX; attempt++) {
-    setPip(attempt, 'active');
-    setRetryLabel(`Attempt ${attempt}/${MAX}…`);
-    log('info', `Attempt ${attempt}/${MAX} — generating code…`);
-
-    let code;
-    try {
-      code = await callGemini(apiKey, query, schema, errorFeedback);
-      log('ok', 'Code generated — executing in Excel…');
-    } catch(e) {
-      log('err', `Gemini error: ${e.message}`);
-      setPip(attempt, 'fail');
-      if (attempt === MAX) break;
-      errorFeedback = e.message;
-      continue;
-    }
-
-    try {
-      await executeCode(code);
-      setPip(attempt, 'done');
-      setRetryLabel(`Done in ${attempt} attempt${attempt > 1 ? 's' : ''}`);
-      log('ok', `✅  Task completed successfully!`);
-      showResult('success', `✅  Done! Excel updated successfully.`);
-      document.getElementById('footerInfo').textContent = `Last task: ${new Date().toLocaleTimeString()}`;
-      setRunning(false); running = false;
-      return;
-    } catch(e) {
-      const errMsg = e.message || String(e);
-      log('warn', `Attempt ${attempt} failed: ${errMsg.slice(0,120)}`);
-      setPip(attempt, 'fail');
-      errorFeedback = errMsg;
-      if (attempt < MAX) log('info', 'Feeding error back to Gemini for self-repair…');
-    }
-  }
-
-  log('err', '🛑  All attempts failed. Try a simpler command or check column names.');
-  showResult('error', '❌  Failed after 3 attempts. Try rephrasing the task.');
-  setRetryLabel('Failed — try again');
-  setRunning(false); running = false;
+  getSchema().then(function(schema) {
+    addLog('info', 'Read sheet "' + schema.sheetName + '" - ' + schema.rowCount + ' rows x ' + schema.columnCount + ' cols');
+    attempt(key, query, schema, '', 1);
+  }, function(schErr) {
+    addLog('err', 'Cannot read sheet: ' + (schErr.message || schErr));
+    showBanner('err', '&#10060; Could not read sheet. Open a workbook with data first.');
+    setBusy(false);
+    running = false;
+  });
 }
-
-// ─────────────────────────────────────────────────────────
-// UI STATE
-// ─────────────────────────────────────────────────────────
-function setRunning(on) {
-  const btn  = document.getElementById('runBtn');
-  const icon = document.getElementById('runIcon');
-  const lbl  = document.getElementById('runLabel');
-  btn.disabled = on;
-  if (on) {
-    icon.outerHTML = '<div id="runIcon" class="spinner"></div>';
-    lbl.textContent = 'Agent running…';
-  } else {
-    document.getElementById('runIcon').outerHTML = '<span id="runIcon">⚡</span>';
-    lbl.textContent = 'Execute Task';
-  }
-}
-
-function clearAll() {
-  document.getElementById('logBody').innerHTML =
-    '<div class="log-line dim"><span class="ts">—</span><span class="msg">Log cleared.</span></div>';
-  hideResult();
-  showRetry(false);
-  document.getElementById('footerInfo').textContent = 'Ready';
-  for(let i=1;i<=3;i++) setPip(i,'');
-}
-
-// Allow Ctrl+Enter to run
-document.addEventListener('keydown', e => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') runAgent();
-});
 </script>
 </body>
 </html>
