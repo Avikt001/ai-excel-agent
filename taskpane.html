@@ -301,7 +301,6 @@ function applyHeaderStyle(fillColor) {
       header.format.rowHeight = 26;
       range.format.autofitColumns();
       sheet.freezePanes.freezeRows(1);
-      sheet.getActiveCell();
       return ctx.sync().then(function(){ return 'Header styled successfully'; });
     });
   });
