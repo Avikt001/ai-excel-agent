@@ -47,7 +47,7 @@ textarea{min-height:70px;line-height:1.5}
     <div class="logo">&#9889;</div>
     <div>
       <h1>AI Excel Agent</h1>
-      <p>Gemini-powered &bull; Free &bull; Self-healing</p>
+      <p>Groq-powered &bull; Free &bull; Self-healing</p>
     </div>
   </div>
 </div>
@@ -55,12 +55,12 @@ textarea{min-height:70px;line-height:1.5}
 <div class="body">
 
   <div class="section">
-    <div class="lbl">&#128273; Gemini API Key (free)</div>
+    <div class="lbl">&#128273; Groq API Key (free &bull; no credit card)</div>
     <div class="key-row">
-      <input type="password" id="apiKey" placeholder="AIza...  get free key at aistudio.google.com"/>
+      <input type="password" id="apiKey" placeholder="gsk_...  get free key at console.groq.com"/>
       <button class="btn-save" id="saveBtn" onclick="saveKey()">&#128190;</button>
     </div>
-    <div class="note">Free tier: 15 req/min &bull; 1 million tokens/day &bull; no credit card needed</div>
+    <div class="note">Free tier: no credit card needed &bull; sign up at console.groq.com</div>
   </div>
 
   <div class="section">
@@ -101,7 +101,7 @@ textarea{min-height:70px;line-height:1.5}
 
 <script>
 var running = false;
-var GURL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
+var GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 var SYS = 'You are an expert Excel Office.js automation engineer.\n' +
 'Write code that goes INSIDE Excel.run(async (context) => { YOUR CODE HERE }).\n\n' +
@@ -220,16 +220,20 @@ function getSchema() {
   });
 }
 
-function callGemini(key, query, schema, prevError, cb) {
+function callGroq(key, query, schema, prevError, cb) {
   var userMsg = 'Sheet info:\n' + JSON.stringify(schema, null, 2) + '\n\nTask: ' + query;
   if (prevError) {
     userMsg += '\n\nPREVIOUS ATTEMPT FAILED WITH THIS ERROR - fix it:\n' + prevError.substring(0, 1500) + '\n\nRewrite the ENTIRE code from scratch. ONLY output raw JavaScript.';
   }
 
   var payload = JSON.stringify({
-    system_instruction: { parts: [{ text: SYS }] },
-    contents: [{ parts: [{ text: userMsg }] }],
-    generationConfig: { temperature: 0.05, maxOutputTokens: 4096 }
+    model: 'llama-3.3-70b-versatile',
+    temperature: 0.05,
+    max_tokens: 4096,
+    messages: [
+      { role: 'system', content: SYS },
+      { role: 'user', content: userMsg }
+    ]
   });
 
   var xhr;
@@ -239,7 +243,8 @@ function callGemini(key, query, schema, prevError, cb) {
     cb('Cannot create request: ' + e.message, null); return;
   }
 
-  xhr.open('POST', GURL + key, true);
+  xhr.open('POST', GROQ_URL, true);
+  xhr.setRequestHeader('Authorization', 'Bearer ' + key);
   xhr.setRequestHeader('Content-Type', 'application/json');
 
   xhr.onreadystatechange = function() {
@@ -252,11 +257,11 @@ function callGemini(key, query, schema, prevError, cb) {
     }
     try {
       var data = JSON.parse(xhr.responseText);
-      var code = data.candidates[0].content.parts[0].text || '';
+      var code = data.choices[0].message.content || '';
       code = code.replace(/```javascript[\r\n]?/gi, '').replace(/```js[\r\n]?/gi, '').replace(/```[\r\n]?/g, '').trim();
       cb(null, code);
     } catch(pe) {
-      cb('Could not parse Gemini response: ' + pe.message, null);
+      cb('Could not parse Groq response: ' + pe.message, null);
     }
   };
 
@@ -279,11 +284,11 @@ function doExec(code) {
 
 function attempt(key, query, schema, prevErr, n) {
   var MAX = 3;
-  addLog('info', 'Attempt ' + n + '/' + MAX + ' - asking Gemini...');
+  addLog('info', 'Attempt ' + n + '/' + MAX + ' - asking Groq...');
 
-  callGemini(key, query, schema, prevErr, function(genErr, code) {
+  callGroq(key, query, schema, prevErr, function(genErr, code) {
     if (genErr) {
-      addLog('err', 'Gemini: ' + genErr);
+      addLog('err', 'Groq: ' + genErr);
       if (n < MAX) {
         addLog('warn', 'Retrying in 2 seconds...');
         setTimeout(function() { attempt(key, query, schema, genErr, n + 1); }, 2000);
@@ -326,7 +331,7 @@ function runAgent() {
   var query = document.getElementById('queryBox').value.trim();
 
   if (!key) {
-    showBanner('err', '&#9888; Enter your Gemini API key first');
+    showBanner('err', '&#9888; Enter your Groq API key first');
     addLog('err', 'No API key entered');
     return;
   }
