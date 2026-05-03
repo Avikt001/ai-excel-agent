@@ -3,358 +3,1184 @@
 <head>
 <meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>AI Excel Agent</title>
+<title>Excel Toolkit</title>
 <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Segoe UI,Arial,sans-serif;background:#0F172A;color:#F1F5F9;font-size:13px}
-.header{background:#1E293B;border-bottom:1px solid #334155;padding:12px 14px}
-.logo-row{display:-ms-flexbox;display:flex;-ms-flex-align:center;align-items:center;gap:10px}
-.logo{background:#3B82F6;width:28px;height:28px;border-radius:7px;text-align:center;line-height:28px;font-size:14px}
-.header h1{font-size:13px;font-weight:600;color:#F1F5F9}
-.header p{font-size:10px;color:#94A3B8;margin-top:1px}
-.body{padding:14px}
-.section{margin-bottom:14px}
-.lbl{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#64748B;margin-bottom:6px}
-input,textarea{width:100%;background:#1E293B;border:1px solid #334155;border-radius:6px;color:#F1F5F9;font-family:Segoe UI,Arial,sans-serif;font-size:12px;padding:8px 10px}
-textarea{min-height:70px;line-height:1.5}
-.key-row{display:-ms-flexbox;display:flex;gap:6px}
-.key-row input{-ms-flex:1;flex:1}
-.btn-save{width:34px;height:34px;background:#1E293B;border:1px solid #334155;border-radius:6px;color:#94A3B8;cursor:pointer;font-size:14px}
-.grid{display:-ms-flexbox;display:flex;-ms-flex-wrap:wrap;flex-wrap:wrap;gap:6px}
-.qbtn{background:#1E293B;border:1px solid #334155;border-radius:6px;padding:7px 9px;color:#94A3B8;font-size:11px;cursor:pointer;width:calc(50% - 3px);text-align:left;font-family:Segoe UI,Arial,sans-serif}
-.btn-run{width:100%;background:#3B82F6;border:none;border-radius:6px;color:#fff;font-size:13px;font-weight:600;padding:11px;cursor:pointer;font-family:Segoe UI,Arial,sans-serif}
-.btn-run:disabled{opacity:.5;cursor:not-allowed}
-.log-wrap{background:#060D18;border:1px solid #334155;border-radius:8px;overflow:hidden}
-.log-bar{background:#1E293B;padding:7px 12px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#64748B;border-bottom:1px solid #334155}
-.log-body{padding:10px 12px;min-height:90px;max-height:160px;overflow-y:auto;font-family:'Courier New',monospace;font-size:11px;line-height:1.8}
-.l-info{color:#60A5FA;display:block}
-.l-ok{color:#34D399;display:block}
-.l-warn{color:#FBBF24;display:block}
-.l-err{color:#F87171;display:block}
-.l-dim{color:#64748B;display:block}
-.banner{display:none;margin-bottom:12px;border-radius:6px;padding:9px 12px;font-size:12px;font-weight:500;border:1px solid}
-.b-ok{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.35);color:#34D399}
-.b-err{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.35);color:#F87171}
-.note{font-size:10px;color:#64748B;margin-top:5px}
+body{font-family:Segoe UI,Arial,sans-serif;background:#0F172A;color:#F1F5F9;font-size:12px}
+.header{background:#1E293B;border-bottom:1px solid #334155;padding:10px 12px;display:-ms-flexbox;display:flex;-ms-flex-align:center;align-items:center;gap:8px}
+.logo{background:#3B82F6;width:26px;height:26px;border-radius:6px;text-align:center;line-height:26px;font-size:13px;-ms-flex-negative:0;flex-shrink:0}
+.header h1{font-size:12px;font-weight:600}
+.header p{font-size:10px;color:#64748B;margin-top:1px}
+.tabs{display:-ms-flexbox;display:flex;background:#1E293B;border-bottom:1px solid #334155}
+.tab{-ms-flex:1;flex:1;padding:8px 4px;text-align:center;font-size:10px;font-weight:600;color:#64748B;cursor:pointer;border-bottom:2px solid transparent;letter-spacing:.04em;text-transform:uppercase}
+.tab.active{color:#3B82F6;border-bottom-color:#3B82F6}
+.panel{display:none;padding:10px}
+.panel.active{display:block}
+.sec-title{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#475569;margin:10px 0 6px;padding-bottom:4px;border-bottom:1px solid #1E293B}
+.sec-title:first-child{margin-top:0}
+.btn{width:100%;background:#1E293B;border:1px solid #334155;border-radius:6px;color:#94A3B8;font-size:11px;padding:8px 10px;cursor:pointer;text-align:left;margin-bottom:5px;font-family:Segoe UI,Arial,sans-serif;display:-ms-flexbox;display:flex;-ms-flex-align:center;align-items:center;gap:7px;transition:background .15s}
+.btn:hover{background:#253447;border-color:#3B82F6;color:#F1F5F9}
+.btn .ic{font-size:13px;-ms-flex-negative:0;flex-shrink:0}
+.btn .bt{font-weight:500;color:#CBD5E1;font-size:11px}
+.btn .bd{font-size:10px;color:#64748B;margin-top:1px}
+.btn-inner{-ms-flex:1;flex:1}
+.row2{display:-ms-flexbox;display:flex;gap:5px}
+.row2 .btn{-ms-flex:1;flex:1}
+.inp{width:100%;background:#1E293B;border:1px solid #334155;border-radius:6px;color:#F1F5F9;font-family:Segoe UI,Arial,sans-serif;font-size:11px;padding:7px 9px;margin-bottom:5px}
+.inp-lbl{font-size:10px;color:#64748B;margin-bottom:3px}
+.btn-primary{width:100%;background:#3B82F6;border:none;border-radius:6px;color:#fff;font-size:12px;font-weight:600;padding:9px;cursor:pointer;font-family:Segoe UI,Arial,sans-serif;margin-bottom:5px}
+.btn-primary:hover{background:#2563EB}
+.btn-danger{background:#7F1D1D;border-color:#991B1B;color:#FCA5A5}
+.btn-danger:hover{background:#991B1B;border-color:#EF4444}
+.log-wrap{background:#020817;border:1px solid #1E293B;border-radius:6px;overflow:hidden;margin-top:8px}
+.log-bar{background:#1E293B;padding:5px 10px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#475569}
+.log{padding:8px 10px;min-height:60px;max-height:120px;overflow-y:auto;font-family:'Courier New',monospace;font-size:10px;line-height:1.8}
+.lok{color:#34D399;display:block}.lerr{color:#F87171;display:block}.linf{color:#60A5FA;display:block}.ldim{color:#475569;display:block}
+.banner{display:none;border-radius:6px;padding:7px 10px;font-size:11px;font-weight:500;border:1px solid;margin-bottom:8px}
+.bok{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);color:#34D399}
+.berr{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#F87171}
+.color-row{display:-ms-flexbox;display:flex;gap:4px;margin-bottom:6px;-ms-flex-wrap:wrap;flex-wrap:wrap}
+.color-swatch{width:24px;height:24px;border-radius:4px;cursor:pointer;border:2px solid transparent}
+.color-swatch.sel{border-color:#fff}
+select.inp{cursor:pointer}
 </style>
 </head>
 <body>
-
 <div class="header">
-  <div class="logo-row">
-    <div class="logo">&#9889;</div>
-    <div>
-      <h1>AI Excel Agent</h1>
-      <p>Groq-powered &bull; Free &bull; Self-healing</p>
-    </div>
+  <div class="logo">&#9889;</div>
+  <div>
+    <h1>Excel Toolkit Pro</h1>
+    <p>No API &bull; No tokens &bull; 100% free</p>
   </div>
 </div>
 
-<div class="body">
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('format')">&#127912; Format</div>
+  <div class="tab" onclick="switchTab('data')">&#128202; Data</div>
+  <div class="tab" onclick="switchTab('insert')">&#43; Insert</div>
+  <div class="tab" onclick="switchTab('clean')">&#9999; Clean</div>
+</div>
 
-  <div class="section">
-    <div class="lbl">&#128273; Groq API Key (free &bull; no credit card)</div>
-    <div class="key-row">
-      <input type="password" id="apiKey" placeholder="gsk_...  get free key at console.groq.com"/>
-      <button class="btn-save" id="saveBtn" onclick="saveKey()">&#128190;</button>
-    </div>
-    <div class="note">Free tier: no credit card needed &bull; sign up at console.groq.com</div>
+<div class="banner" id="banner"></div>
+
+<!-- FORMAT TAB -->
+<div class="panel active" id="tab-format">
+
+  <div class="sec-title">Header Styles</div>
+  <button class="btn" onclick="run(styleHeaderDark)"><span class="ic">&#11035;</span><div class="btn-inner"><div class="bt">Dark Professional</div><div class="bd">Navy fill, white bold text, freeze row 1</div></div></button>
+  <button class="btn" onclick="run(styleHeaderBlue)"><span class="ic">&#128999;</span><div class="btn-inner"><div class="bt">Ocean Blue</div><div class="bd">Blue fill, white bold text, auto-fit</div></div></button>
+  <button class="btn" onclick="run(styleHeaderGreen)"><span class="ic">&#129001;</span><div class="btn-inner"><div class="bt">Emerald Green</div><div class="bd">Green fill, white bold text, auto-fit</div></div></button>
+  <button class="btn" onclick="run(styleHeaderGray)"><span class="ic">&#11036;</span><div class="btn-inner"><div class="bt">Slate Gray</div><div class="bd">Gray fill, white bold text, auto-fit</div></div></button>
+
+  <div class="sec-title">Row Styles</div>
+  <div class="row2">
+    <button class="btn" onclick="run(zebraBlue)"><span class="ic">&#129443;</span><div class="btn-inner"><div class="bt">Blue Zebra</div></div></button>
+    <button class="btn" onclick="run(zebraGreen)"><span class="ic">&#129001;</span><div class="btn-inner"><div class="bt">Green Zebra</div></div></button>
+  </div>
+  <div class="row2">
+    <button class="btn" onclick="run(zebraOrange)"><span class="ic">&#127818;</span><div class="btn-inner"><div class="bt">Warm Zebra</div></div></button>
+    <button class="btn" onclick="run(addBorders)"><span class="ic">&#9638;</span><div class="btn-inner"><div class="bt">All Borders</div></div></button>
   </div>
 
-  <div class="section">
-    <div class="lbl">&#128172; What should the agent do?</div>
-    <textarea id="queryBox" placeholder="e.g. Average all marks of tutorials and practicals, add totals row, style headers dark blue bold white text"></textarea>
+  <div class="sec-title">Column & Row Sizing</div>
+  <div class="row2">
+    <button class="btn" onclick="run(autofitCols)"><span class="ic">&#8596;</span><div class="btn-inner"><div class="bt">Auto-fit Cols</div></div></button>
+    <button class="btn" onclick="run(autofitRows)"><span class="ic">&#8597;</span><div class="btn-inner"><div class="bt">Auto-fit Rows</div></div></button>
   </div>
 
-  <div class="section">
-    <div class="lbl">&#9889; Quick actions</div>
-    <div class="grid">
-      <button class="qbtn" onclick="setQ('Format headers: dark navy fill, white bold text size 11, auto-fit all columns, freeze row 1')">&#127912; Style headers</button>
-      <button class="qbtn" onclick="setQ('Add alternating row colours: very light blue for odd rows, white for even rows. Add thin grey borders on all cells.')">&#129443; Zebra stripes</button>
-      <button class="qbtn" onclick="setQ('Add a clustered bar chart using the data in this sheet. Place it two rows below the last data row.')">&#128202; Bar chart</button>
-      <button class="qbtn" onclick="setQ('Add a colour scale conditional format on all numeric columns: green for highest values, red for lowest values.')">&#127777; Heat colours</button>
-      <button class="qbtn" onclick="setQ('Sort all data by the first numeric column in descending order. Add a Rank column as the first column.')">&#128290; Sort + rank</button>
-      <button class="qbtn" onclick="setQ('Create a new sheet called Summary with total, average, min and max for every numeric column, with professional dark header formatting.')">&#128203; Summary sheet</button>
-      <button class="qbtn" onclick="setQ('Format all numeric columns as numbers with 2 decimal places. Format any date columns as DD/MM/YYYY.')">&#128178; Fix formats</button>
-      <button class="qbtn" onclick="setQ('Add a Totals row at the very bottom with SUM formula for every numeric column. Make it bold with dark background and white text.')">&#43; Totals row</button>
-    </div>
+  <div class="sec-title">Number Formats</div>
+  <div class="row2">
+    <button class="btn" onclick="run(fmtCurrency)"><span class="ic">&#128178;</span><div class="btn-inner"><div class="bt">Currency</div></div></button>
+    <button class="btn" onclick="run(fmtPercent)"><span class="ic">&#37;</span><div class="btn-inner"><div class="bt">Percentage</div></div></button>
+  </div>
+  <div class="row2">
+    <button class="btn" onclick="run(fmtDate)"><span class="ic">&#128197;</span><div class="btn-inner"><div class="bt">Date</div></div></button>
+    <button class="btn" onclick="run(fmtNumber2)"><span class="ic">&#35;</span><div class="btn-inner"><div class="bt">2 Decimals</div></div></button>
   </div>
 
-  <div class="banner" id="banner"></div>
+  <div class="sec-title">Conditional Formatting</div>
+  <button class="btn" onclick="run(cfHeatmap)"><span class="ic">&#127777;</span><div class="btn-inner"><div class="bt">Heatmap (Green → Red)</div><div class="bd">Colour scale on all numeric columns</div></div></button>
+  <button class="btn" onclick="run(cfTop10)"><span class="ic">&#127941;</span><div class="btn-inner"><div class="bt">Highlight Top 10%</div><div class="bd">Gold fill on top 10% values</div></div></button>
+  <button class="btn" onclick="run(cfBottom10)"><span class="ic">&#128308;</span><div class="btn-inner"><div class="bt">Highlight Bottom 10%</div><div class="bd">Red fill on bottom 10% values</div></div></button>
+  <button class="btn" onclick="run(cfDataBars)"><span class="ic">&#9646;</span><div class="btn-inner"><div class="bt">Data Bars</div><div class="bd">Blue progress bars inside cells</div></div></button>
 
-  <div class="section">
-    <button class="btn-run" id="runBtn" onclick="runAgent()">&#9889; Execute Task</button>
+  <div class="sec-title">Full Sheet Themes</div>
+  <button class="btn" onclick="run(themeExecutive)"><span class="ic">&#127970;</span><div class="btn-inner"><div class="bt">Executive Dark</div><div class="bd">Dark headers + zebra + borders + auto-fit</div></div></button>
+  <button class="btn" onclick="run(themeMinimal)"><span class="ic">&#9711;</span><div class="btn-inner"><div class="bt">Minimal Clean</div><div class="bd">Light headers + thin borders + auto-fit</div></div></button>
+  <button class="btn" onclick="run(themeColorful)"><span class="ic">&#127752;</span><div class="btn-inner"><div class="bt">Colorful Modern</div><div class="bd">Blue headers + green zebra + heatmap</div></div></button>
+
+</div>
+
+<!-- DATA TAB -->
+<div class="panel" id="tab-data">
+
+  <div class="sec-title">Sort</div>
+  <div class="inp-lbl">Sort by column (e.g. B)</div>
+  <input class="inp" id="sortCol" value="A" maxlength="3"/>
+  <div class="row2">
+    <button class="btn-primary" onclick="run(sortAsc)" style="margin-right:0">&#8593; Ascending</button>
+    <button class="btn-primary" onclick="run(sortDesc)">&#8595; Descending</button>
   </div>
 
-  <div class="section">
-    <div class="log-wrap">
-      <div class="log-bar">&#9679;&#9679;&#9679;&nbsp;&nbsp;agent log</div>
-      <div class="log-body" id="logBody">
-        <span class="l-dim">-- Waiting for task...</span>
-      </div>
-    </div>
+  <div class="sec-title">Filter</div>
+  <button class="btn" onclick="run(addAutoFilter)"><span class="ic">&#9660;</span><div class="btn-inner"><div class="bt">Add AutoFilter</div><div class="bd">Add dropdown filters to header row</div></div></button>
+  <button class="btn" onclick="run(clearFilters)"><span class="ic">&#10005;</span><div class="btn-inner"><div class="bt">Clear All Filters</div></div></button>
+
+  <div class="sec-title">Totals & Summary</div>
+  <button class="btn" onclick="run(addTotalsRow)"><span class="ic">&#8721;</span><div class="btn-inner"><div class="bt">Add Totals Row</div><div class="bd">SUM for every numeric column, bold dark fill</div></div></button>
+  <button class="btn" onclick="run(addAverageRow)"><span class="ic">&#216;</span><div class="btn-inner"><div class="bt">Add Average Row</div><div class="bd">AVERAGE for every numeric column</div></div></button>
+  <button class="btn" onclick="run(addRankColumn)"><span class="ic">&#127942;</span><div class="btn-inner"><div class="bt">Add Rank Column</div><div class="bd">Ranks rows by first numeric column</div></div></button>
+  <button class="btn" onclick="run(addSummarySheet)"><span class="ic">&#128203;</span><div class="btn-inner"><div class="bt">Create Summary Sheet</div><div class="bd">New sheet with count, sum, avg, min, max</div></div></button>
+
+  <div class="sec-title">Calculations</div>
+  <button class="btn" onclick="run(addRunningTotal)"><span class="ic">&#8594;</span><div class="btn-inner"><div class="bt">Running Total Column</div><div class="bd">Cumulative sum of first numeric column</div></div></button>
+  <button class="btn" onclick="run(addPctOfTotal)"><span class="ic">&#37;</span><div class="btn-inner"><div class="bt">% of Total Column</div><div class="bd">Each row as % of column total</div></div></button>
+
+  <div class="sec-title">Average Specific Columns</div>
+  <div class="inp-lbl">Column letters to average (e.g. B,C,D)</div>
+  <input class="inp" id="avgCols" placeholder="B,C,D"/>
+  <div class="inp-lbl">Output column letter</div>
+  <input class="inp" id="avgOut" placeholder="E"/>
+  <div class="inp-lbl">Output header name</div>
+  <input class="inp" id="avgName" placeholder="Average"/>
+  <button class="btn-primary" onclick="run(addAvgFormula)">Calculate Average</button>
+
+</div>
+
+<!-- INSERT TAB -->
+<div class="panel" id="tab-insert">
+
+  <div class="sec-title">Charts</div>
+  <button class="btn" onclick="run(insertBarChart)"><span class="ic">&#128200;</span><div class="btn-inner"><div class="bt">Bar / Column Chart</div><div class="bd">Clustered columns from selected data</div></div></button>
+  <button class="btn" onclick="run(insertLineChart)"><span class="ic">&#128201;</span><div class="btn-inner"><div class="bt">Line Chart</div><div class="bd">Trend line from selected data</div></div></button>
+  <button class="btn" onclick="run(insertPieChart)"><span class="ic">&#129383;</span><div class="btn-inner"><div class="bt">Pie Chart</div><div class="bd">First two columns as pie chart</div></div></button>
+  <button class="btn" onclick="run(insertAreaChart)"><span class="ic">&#9965;</span><div class="btn-inner"><div class="bt">Area Chart</div><div class="bd">Filled area trend chart</div></div></button>
+
+  <div class="sec-title">Rows & Columns</div>
+  <div class="inp-lbl">Insert how many rows/cols?</div>
+  <input class="inp" id="insertCount" value="1" type="number" min="1" max="50"/>
+  <div class="row2">
+    <button class="btn-primary" onclick="run(insertRowsAbove)">+ Rows Above</button>
+    <button class="btn-primary" onclick="run(insertRowsBelow)">+ Rows Below</button>
   </div>
 
+  <div class="sec-title">Special Rows</div>
+  <button class="btn" onclick="run(addHeaderRow)"><span class="ic">&#11014;</span><div class="btn-inner"><div class="bt">Insert Header Row</div><div class="bd">Blank styled row at top of sheet</div></div></button>
+  <button class="btn" onclick="run(addTimestamp)"><span class="ic">&#128336;</span><div class="btn-inner"><div class="bt">Add Timestamp</div><div class="bd">Current date/time in next empty cell</div></div></button>
+
+  <div class="sec-title">Sheet Operations</div>
+  <div class="inp-lbl">New sheet name</div>
+  <input class="inp" id="newSheetName" placeholder="Sheet name"/>
+  <button class="btn-primary" onclick="run(addNewSheet)">Add New Sheet</button>
+  <button class="btn" onclick="run(duplicateSheet)"><span class="ic">&#128464;</span><div class="btn-inner"><div class="bt">Duplicate Current Sheet</div></div></button>
+
+</div>
+
+<!-- CLEAN TAB -->
+<div class="panel" id="tab-clean">
+
+  <div class="sec-title">Remove & Clear</div>
+  <button class="btn btn-danger" onclick="run(removeDuplicates)"><span class="ic">&#10006;</span><div class="btn-inner"><div class="bt">Remove Duplicate Rows</div><div class="bd">Keeps first occurrence of each row</div></div></button>
+  <button class="btn btn-danger" onclick="run(removeBlankRows)"><span class="ic">&#8943;</span><div class="btn-inner"><div class="bt">Remove Blank Rows</div><div class="bd">Deletes rows where all cells are empty</div></div></button>
+  <button class="btn" onclick="run(clearFormatting)"><span class="ic">&#9986;</span><div class="btn-inner"><div class="bt">Clear All Formatting</div><div class="bd">Reset all colours, fonts, borders</div></div></button>
+  <button class="btn" onclick="run(clearContents)"><span class="ic">&#128465;</span><div class="btn-inner"><div class="bt">Clear Cell Contents</div><div class="bd">Clear values but keep formatting</div></div></button>
+
+  <div class="sec-title">Text Fixes</div>
+  <button class="btn" onclick="run(trimSpaces)"><span class="ic">&#9144;</span><div class="btn-inner"><div class="bt">Trim Whitespace</div><div class="bd">Remove leading/trailing spaces from text</div></div></button>
+  <button class="btn" onclick="run(toUpperCase)"><span class="ic">&#65;</span><div class="btn-inner"><div class="bt">UPPERCASE All Text</div></div></button>
+  <button class="btn" onclick="run(toLowerCase)"><span class="ic">&#97;</span><div class="btn-inner"><div class="bt">lowercase all text</div></div></button>
+  <button class="btn" onclick="run(toProperCase)"><span class="ic">&#84;</span><div class="btn-inner"><div class="bt">Title Case All Text</div></div></button>
+
+  <div class="sec-title">Find & Replace</div>
+  <div class="inp-lbl">Find text</div>
+  <input class="inp" id="findTxt" placeholder="Find..."/>
+  <div class="inp-lbl">Replace with</div>
+  <input class="inp" id="replaceTxt" placeholder="Replace..."/>
+  <button class="btn-primary" onclick="run(findReplace)">Find &amp; Replace</button>
+
+  <div class="sec-title">Fill Empty Cells</div>
+  <div class="inp-lbl">Fill empty cells with</div>
+  <input class="inp" id="fillVal" placeholder="0 or N/A"/>
+  <button class="btn-primary" onclick="run(fillEmpty)">Fill Empty Cells</button>
+
+</div>
+
+<!-- LOG -->
+<div style="padding:0 10px 10px">
+  <div class="log-wrap">
+    <div class="log-bar">&#9679;&#9679;&#9679;&nbsp; log</div>
+    <div class="log" id="log"><span class="ldim">-- Ready. Click any action --</span></div>
+  </div>
 </div>
 
 <script>
-var running = false;
-var GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-
-var SYS = 'You are an expert Excel Office.js automation engineer.\n' +
-'Write code that goes INSIDE Excel.run(async (context) => { YOUR CODE HERE }).\n\n' +
-'STRICT RULES:\n' +
-'1. Output ONLY raw JavaScript code. No markdown. No backticks. No explanations.\n' +
-'2. Use var (not const/let) for IE11 compatibility.\n' +
-'3. Always load properties before reading. Always call await context.sync() after loading and after making changes.\n' +
-'4. Get sheet: var sheet = context.workbook.worksheets.getActiveWorksheet();\n' +
-'5. Get data: var range = sheet.getUsedRange(); range.load(["values","rowCount","columnCount","address"]); await context.sync();\n' +
-'6. Design colours: header="#1E293B" headerText="#FFFFFF" zebraA="#F8FAFC" zebraB="#EFF6FF" border="#CBD5E1" accent="#3B82F6"\n' +
-'7. After formatting: range.format.autofitColumns();\n' +
-'8. After header format: sheet.freezePanes.freezeRows(1);\n' +
-'9. For cell borders use: var borders = cell.format.borders; borders.getItem("EdgeTop").style = "Continuous"; borders.getItem("EdgeTop").color = "#CBD5E1"; (repeat for EdgeBottom, EdgeLeft, EdgeRight)\n' +
-'10. Always end with: await context.sync();\n' +
-'11. Do NOT use fetch, XMLHttpRequest, or any network calls inside the code.\n' +
-'12. Do NOT use const or let — only var.\n';
-
-Office.onReady(function(info) {
-  if (info.host === Office.HostType.Excel) {
-    loadKey();
+// ── HELPERS ────────────────────────────────────────────────
+function switchTab(name) {
+  var tabs = document.querySelectorAll('.tab');
+  var panels = document.querySelectorAll('.panel');
+  var tabEls = document.querySelectorAll('.tab');
+  var i;
+  for (i = 0; i < panels.length; i++) panels[i].className = 'panel';
+  for (i = 0; i < tabEls.length; i++) tabEls[i].className = 'tab';
+  document.getElementById('tab-' + name).className = 'panel active';
+  // find which tab was clicked
+  var names = ['format','data','insert','clean'];
+  for (i = 0; i < names.length; i++) {
+    if (names[i] === name) tabEls[i].className = 'tab active';
   }
-});
-
-function saveKey() {
-  var key = document.getElementById('apiKey').value;
-  if (!key || !key.trim()) { addLog('err', 'Please enter your API key first'); return; }
-  try { localStorage.setItem('gkey', key.trim()); } catch(e) {}
-  var btn = document.getElementById('saveBtn');
-  btn.innerHTML = '&#10003;';
-  btn.style.color = '#34D399';
-  btn.style.borderColor = '#34D399';
-  setTimeout(function() {
-    btn.innerHTML = '&#128190;';
-    btn.style.color = '';
-    btn.style.borderColor = '';
-  }, 1500);
-  addLog('ok', 'API key saved successfully');
 }
 
-function loadKey() {
-  try {
-    var k = localStorage.getItem('gkey');
-    if (k) { document.getElementById('apiKey').value = k; }
-  } catch(e) {}
-}
-
-function setQ(text) {
-  document.getElementById('queryBox').value = text;
-  document.getElementById('queryBox').focus();
-}
-
-function addLog(type, msg) {
-  var body = document.getElementById('logBody');
-  if (body.innerHTML.indexOf('Waiting') !== -1) { body.innerHTML = ''; }
-  var d = document.createElement('span');
-  d.className = 'l-' + type;
+function log(type, msg) {
+  var el = document.getElementById('log');
+  if (el.innerHTML.indexOf('Ready') !== -1) el.innerHTML = '';
+  var s = document.createElement('span');
+  s.className = type;
   var now = new Date();
-  var ts = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
-  d.innerHTML = '<span style="color:#64748B">' + ts + '</span> ' + esc(msg);
-  body.appendChild(d);
-  body.scrollTop = body.scrollHeight;
+  var ts = pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
+  s.innerHTML = '<span style="color:#334155">'+ts+'</span> ' + String(msg).replace(/</g,'&lt;');
+  el.appendChild(s);
+  el.scrollTop = el.scrollHeight;
 }
-
-function pad(n) { return n < 10 ? '0' + n : '' + n; }
-
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
+function pad(n){return n<10?'0'+n:''+n;}
 
 function showBanner(type, msg) {
   var el = document.getElementById('banner');
-  el.className = 'banner ' + (type === 'ok' ? 'b-ok' : 'b-err');
+  el.className = 'banner ' + (type === 'ok' ? 'bok' : 'berr');
   el.style.display = 'block';
   el.innerHTML = msg;
+  setTimeout(function(){ el.style.display='none'; }, 4000);
 }
 
-function hideBanner() {
-  document.getElementById('banner').style.display = 'none';
+function run(fn) {
+  log('linf', 'Running: ' + fn.name + '...');
+  fn().then(function(msg) {
+    log('lok', '&#10003; ' + (msg || 'Done!'));
+    showBanner('ok', '&#10003; ' + (msg || 'Done!'));
+  }, function(err) {
+    var m = err.message || String(err);
+    log('lerr', '&#10005; ' + m);
+    showBanner('err', '&#10005; ' + m);
+  });
 }
 
-function setBusy(on) {
-  var btn = document.getElementById('runBtn');
-  btn.disabled = on;
-  btn.innerHTML = on ? '&#9203; Agent running...' : '&#9889; Execute Task';
-}
-
-function getSchema() {
+function getSheet() {
   return Excel.run(function(ctx) {
     var sheet = ctx.workbook.worksheets.getActiveWorksheet();
     var range = sheet.getUsedRange();
     sheet.load('name');
-    range.load(['values', 'rowCount', 'columnCount', 'address']);
+    range.load(['values','rowCount','columnCount','address']);
+    return ctx.sync().then(function() {
+      return { sheet: sheet, range: range, ctx: ctx };
+    });
+  });
+}
+
+var COLORS = {
+  darkHeader: '#1E293B', blueHeader: '#1D4ED8', greenHeader: '#065F46', grayHeader:  '#374151',
+  white: '#FFFFFF',      zebraBlue1: '#EFF6FF', zebraBlue2: '#DBEAFE',
+  zebraGreen1: '#F0FDF4',zebraGreen2: '#DCFCE7',zebraOrange1:'#FFF7ED', zebraOrange2:'#FED7AA',
+  border: '#CBD5E1',     totals: '#0F172A',     avgRow: '#1E3A5F',
+  top10: '#FCD34D',      bot10: '#FCA5A5'
+};
+
+function applyHeaderStyle(fillColor) {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load(['rowCount','columnCount']);
+    return ctx.sync().then(function() {
+      var header = sheet.getRangeByIndexes(0, 0, 1, range.columnCount);
+      header.format.fill.color = fillColor;
+      header.format.font.bold = true;
+      header.format.font.color = COLORS.white;
+      header.format.font.size = 11;
+      header.format.horizontalAlignment = 'Center';
+      header.format.verticalAlignment = 'Center';
+      header.format.rowHeight = 26;
+      range.format.autofitColumns();
+      sheet.freezePanes.freezeRows(1);
+      sheet.getActiveCell();
+      return ctx.sync().then(function(){ return 'Header styled successfully'; });
+    });
+  });
+}
+
+// ── FORMAT FUNCTIONS ───────────────────────────────────────
+function styleHeaderDark()  { return applyHeaderStyle(COLORS.darkHeader); }
+function styleHeaderBlue()  { return applyHeaderStyle(COLORS.blueHeader); }
+function styleHeaderGreen() { return applyHeaderStyle(COLORS.greenHeader); }
+function styleHeaderGray()  { return applyHeaderStyle(COLORS.grayHeader); }
+
+function applyZebra(c1, c2) {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load(['rowCount','columnCount','values']);
+    return ctx.sync().then(function() {
+      var i;
+      for (i = 1; i < range.rowCount; i++) {
+        var row = sheet.getRangeByIndexes(i, 0, 1, range.columnCount);
+        row.format.fill.color = (i % 2 === 1) ? c1 : c2;
+      }
+      return ctx.sync().then(function(){ return 'Zebra stripes applied'; });
+    });
+  });
+}
+function zebraBlue()   { return applyZebra(COLORS.zebraBlue1, COLORS.zebraBlue2); }
+function zebraGreen()  { return applyZebra(COLORS.zebraGreen1, COLORS.zebraGreen2); }
+function zebraOrange() { return applyZebra(COLORS.zebraOrange1, COLORS.zebraOrange2); }
+
+function addBorders() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load(['rowCount','columnCount']);
+    return ctx.sync().then(function() {
+      var sides = ['EdgeTop','EdgeBottom','EdgeLeft','EdgeRight','InsideHorizontal','InsideVertical'];
+      var i;
+      for (i = 0; i < sides.length; i++) {
+        var b = range.format.borders.getItem(sides[i]);
+        b.style = 'Continuous';
+        b.color = COLORS.border;
+        b.weight = 'Thin';
+      }
+      return ctx.sync().then(function(){ return 'Borders added'; });
+    });
+  });
+}
+
+function autofitCols() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.format.autofitColumns();
+    return ctx.sync().then(function(){ return 'Columns auto-fitted'; });
+  });
+}
+
+function autofitRows() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.format.autofitRows();
+    return ctx.sync().then(function(){ return 'Rows auto-fitted'; });
+  });
+}
+
+function applyNumFmt(fmt) {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load(['values','rowCount','columnCount']);
     return ctx.sync().then(function() {
       var vals = range.values;
-      var headers = vals.length > 0 ? vals[0] : [];
-      var sample = vals.slice(1, 5);
-      var types = {};
-      var i, r;
-      for (i = 0; i < headers.length; i++) {
-        var nums = 0;
-        for (r = 0; r < sample.length; r++) {
-          if (typeof sample[r][i] === 'number') nums++;
+      var i, j;
+      for (j = 0; j < range.columnCount; j++) {
+        var isNum = false;
+        for (i = 1; i < range.rowCount; i++) {
+          if (typeof vals[i][j] === 'number') { isNum = true; break; }
         }
-        types[String(headers[i])] = nums > 0 ? 'number' : 'text';
+        if (isNum) {
+          var col = sheet.getRangeByIndexes(1, j, range.rowCount - 1, 1);
+          col.numberFormat = [[fmt]];
+        }
       }
-      return {
-        sheetName: sheet.name,
-        address: range.address,
-        rowCount: range.rowCount,
-        columnCount: range.columnCount,
-        headers: headers,
-        columnTypes: types,
-        sample: sample
-      };
+      return ctx.sync().then(function(){ return 'Number format applied'; });
+    });
+  });
+}
+function fmtCurrency() { return applyNumFmt('$#,##0.00'); }
+function fmtPercent()  { return applyNumFmt('0.00%'); }
+function fmtDate()     { return applyNumFmt('DD/MM/YYYY'); }
+function fmtNumber2()  { return applyNumFmt('#,##0.00'); }
+
+function cfHeatmap() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load(['values','rowCount','columnCount']);
+    return ctx.sync().then(function() {
+      var vals = range.values;
+      var j;
+      for (j = 0; j < range.columnCount; j++) {
+        var isNum = false;
+        var i;
+        for (i = 1; i < range.rowCount; i++) {
+          if (typeof vals[i][j] === 'number') { isNum = true; break; }
+        }
+        if (isNum && range.rowCount > 2) {
+          var col = sheet.getRangeByIndexes(1, j, range.rowCount - 1, 1);
+          var cf = col.conditionalFormats.add('ColorScale');
+          cf.colorScale.criteria = {
+            minimum: { formula: null, type: 'LowestValue',  color: '#F87171' },
+            midpoint: { formula: '50', type: 'Percentile',  color: '#FCD34D' },
+            maximum: { formula: null, type: 'HighestValue', color: '#34D399' }
+          };
+        }
+      }
+      return ctx.sync().then(function(){ return 'Heatmap applied'; });
     });
   });
 }
 
-function callGroq(key, query, schema, prevError, cb) {
-  var userMsg = 'Sheet info:\n' + JSON.stringify(schema, null, 2) + '\n\nTask: ' + query;
-  if (prevError) {
-    userMsg += '\n\nPREVIOUS ATTEMPT FAILED WITH THIS ERROR - fix it:\n' + prevError.substring(0, 1500) + '\n\nRewrite the ENTIRE code from scratch. ONLY output raw JavaScript.';
-  }
-
-  var payload = JSON.stringify({
-    model: 'llama-3.3-70b-versatile',
-    temperature: 0.05,
-    max_tokens: 4096,
-    messages: [
-      { role: 'system', content: SYS },
-      { role: 'user', content: userMsg }
-    ]
+function cfTop10() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load(['values','rowCount','columnCount']);
+    return ctx.sync().then(function() {
+      var vals = range.values; var j;
+      for (j = 0; j < range.columnCount; j++) {
+        var isNum = false; var i;
+        for (i = 1; i < range.rowCount; i++) { if (typeof vals[i][j] === 'number') { isNum = true; break; } }
+        if (isNum) {
+          var col = sheet.getRangeByIndexes(1, j, range.rowCount - 1, 1);
+          var cf = col.conditionalFormats.add('TopBottom');
+          cf.topBottom.rule = { rank: 10, percent: true, type: 'TopItems' };
+          cf.topBottom.format.fill.color = COLORS.top10;
+          cf.topBottom.format.font.bold = true;
+        }
+      }
+      return ctx.sync().then(function(){ return 'Top 10% highlighted'; });
+    });
   });
-
-  var xhr;
-  try {
-    xhr = new XMLHttpRequest();
-  } catch(e) {
-    cb('Cannot create request: ' + e.message, null); return;
-  }
-
-  xhr.open('POST', GROQ_URL, true);
-  xhr.setRequestHeader('Authorization', 'Bearer ' + key);
-  xhr.setRequestHeader('Content-Type', 'application/json');
-
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState !== 4) return;
-    if (xhr.status === 0) { cb('Network error — check internet connection', null); return; }
-    if (xhr.status !== 200) {
-      var em = 'API error ' + xhr.status;
-      try { var ed = JSON.parse(xhr.responseText); if (ed && ed.error) em += ': ' + ed.error.message; } catch(pe) {}
-      cb(em, null); return;
-    }
-    try {
-      var data = JSON.parse(xhr.responseText);
-      var code = data.choices[0].message.content || '';
-      code = code.replace(/```javascript[\r\n]?/gi, '').replace(/```js[\r\n]?/gi, '').replace(/```[\r\n]?/g, '').trim();
-      cb(null, code);
-    } catch(pe) {
-      cb('Could not parse Groq response: ' + pe.message, null);
-    }
-  };
-
-  try { xhr.send(payload); }
-  catch(e) { cb('Send error: ' + e.message, null); }
 }
 
-function doExec(code) {
-  return Excel.run(function(context) {
-    try {
-      var fn = new Function('context', code + '\nreturn Promise.resolve();');
-      return fn(context).then(function() {
-        return context.sync();
+function cfBottom10() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load(['values','rowCount','columnCount']);
+    return ctx.sync().then(function() {
+      var vals = range.values; var j;
+      for (j = 0; j < range.columnCount; j++) {
+        var isNum = false; var i;
+        for (i = 1; i < range.rowCount; i++) { if (typeof vals[i][j] === 'number') { isNum = true; break; } }
+        if (isNum) {
+          var col = sheet.getRangeByIndexes(1, j, range.rowCount - 1, 1);
+          var cf = col.conditionalFormats.add('TopBottom');
+          cf.topBottom.rule = { rank: 10, percent: true, type: 'BottomItems' };
+          cf.topBottom.format.fill.color = COLORS.bot10;
+          cf.topBottom.format.font.bold = true;
+        }
+      }
+      return ctx.sync().then(function(){ return 'Bottom 10% highlighted'; });
+    });
+  });
+}
+
+function cfDataBars() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load(['values','rowCount','columnCount']);
+    return ctx.sync().then(function() {
+      var vals = range.values; var j;
+      for (j = 0; j < range.columnCount; j++) {
+        var isNum = false; var i;
+        for (i = 1; i < range.rowCount; i++) { if (typeof vals[i][j] === 'number') { isNum = true; break; } }
+        if (isNum) {
+          var col = sheet.getRangeByIndexes(1, j, range.rowCount - 1, 1);
+          var cf = col.conditionalFormats.add('DataBar');
+          cf.dataBar.barDirection = 'LeftToRight';
+          cf.dataBar.positiveFormat.fillColor = '#3B82F6';
+          cf.dataBar.showDataBarOnly = false;
+        }
+      }
+      return ctx.sync().then(function(){ return 'Data bars added'; });
+    });
+  });
+}
+
+function themeExecutive() {
+  return styleHeaderDark().then(function() {
+    return zebraBlue();
+  }).then(function() {
+    return addBorders();
+  }).then(function() {
+    return autofitCols();
+  }).then(function() { return 'Executive Dark theme applied'; });
+}
+
+function themeMinimal() {
+  return applyHeaderStyle('#F1F5F9').then(function() {
+    return Excel.run(function(ctx) {
+      var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+      var range = sheet.getUsedRange();
+      range.load(['rowCount','columnCount']);
+      return ctx.sync().then(function() {
+        var header = sheet.getRangeByIndexes(0, 0, 1, range.columnCount);
+        header.format.font.color = '#1E293B';
+        var sides = ['EdgeTop','EdgeBottom','EdgeLeft','EdgeRight'];
+        var i;
+        for (i = 0; i < sides.length; i++) {
+          var b = range.format.borders.getItem(sides[i]);
+          b.style = 'Continuous'; b.color = '#E2E8F0'; b.weight = 'Thin';
+        }
+        range.format.autofitColumns();
+        return ctx.sync().then(function(){ return 'Minimal theme applied'; });
       });
-    } catch(e) {
-      return Promise.reject(e);
-    }
-  });
-}
-
-function attempt(key, query, schema, prevErr, n) {
-  var MAX = 3;
-  addLog('info', 'Attempt ' + n + '/' + MAX + ' - asking Groq...');
-
-  callGroq(key, query, schema, prevErr, function(genErr, code) {
-    if (genErr) {
-      addLog('err', 'Groq: ' + genErr);
-      if (n < MAX) {
-        addLog('warn', 'Retrying in 2 seconds...');
-        setTimeout(function() { attempt(key, query, schema, genErr, n + 1); }, 2000);
-      } else {
-        done(false, 'All attempts failed. Check your API key at aistudio.google.com');
-      }
-      return;
-    }
-
-    addLog('ok', 'Code received - running in Excel...');
-
-    doExec(code).then(function() {
-      addLog('ok', 'SUCCESS! Task completed on attempt ' + n);
-      showBanner('ok', '&#10003; Done! Your Excel sheet has been updated.');
-      setBusy(false);
-      running = false;
-    }, function(execErr) {
-      var em = execErr.message || String(execErr);
-      addLog('warn', 'Exec error: ' + em.substring(0, 120));
-      if (n < MAX) {
-        addLog('info', 'Self-repairing - attempt ' + (n+1) + '...');
-        attempt(key, query, schema, em, n + 1);
-      } else {
-        done(false, 'Failed after 3 attempts. Try a simpler command.');
-      }
     });
   });
 }
 
-function done(ok, msg) {
-  if (!ok) { addLog('err', msg); showBanner('err', '&#10060; ' + msg); }
-  setBusy(false);
-  running = false;
+function themeColorful() {
+  return styleHeaderBlue().then(function() {
+    return zebraGreen();
+  }).then(function() {
+    return cfHeatmap();
+  }).then(function() {
+    return autofitCols();
+  }).then(function() { return 'Colorful Modern theme applied'; });
 }
 
-function runAgent() {
-  if (running) return;
-
-  var key = document.getElementById('apiKey').value.trim();
-  var query = document.getElementById('queryBox').value.trim();
-
-  if (!key) {
-    showBanner('err', '&#9888; Enter your Groq API key first');
-    addLog('err', 'No API key entered');
-    return;
-  }
-  if (!query) {
-    addLog('err', 'Please type a task or click a quick action');
-    return;
-  }
-
-  running = true;
-  hideBanner();
-  setBusy(true);
-  addLog('info', 'Starting: ' + query.substring(0, 55) + (query.length > 55 ? '...' : ''));
-
-  getSchema().then(function(schema) {
-    addLog('info', 'Read sheet "' + schema.sheetName + '" - ' + schema.rowCount + ' rows x ' + schema.columnCount + ' cols');
-    attempt(key, query, schema, '', 1);
-  }, function(schErr) {
-    addLog('err', 'Cannot read sheet: ' + (schErr.message || schErr));
-    showBanner('err', '&#10060; Could not read sheet. Open a workbook with data first.');
-    setBusy(false);
-    running = false;
+// ── DATA FUNCTIONS ─────────────────────────────────────────
+function sortAsc() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    var col = document.getElementById('sortCol').value.trim().toUpperCase() || 'A';
+    var colIdx = col.charCodeAt(0) - 65;
+    range.load('columnCount');
+    return ctx.sync().then(function() {
+      if (colIdx >= range.columnCount) throw new Error('Column ' + col + ' does not exist in the sheet');
+      range.sort.apply([{ key: colIdx, ascending: true }], true);
+      return ctx.sync().then(function(){ return 'Sorted by column ' + col + ' ascending'; });
+    });
   });
 }
+
+function sortDesc() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    var col = document.getElementById('sortCol').value.trim().toUpperCase() || 'A';
+    var colIdx = col.charCodeAt(0) - 65;
+    range.load('columnCount');
+    return ctx.sync().then(function() {
+      if (colIdx >= range.columnCount) throw new Error('Column ' + col + ' does not exist');
+      range.sort.apply([{ key: colIdx, ascending: false }], true);
+      return ctx.sync().then(function(){ return 'Sorted by column ' + col + ' descending'; });
+    });
+  });
+}
+
+function addAutoFilter() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load(['rowCount','columnCount']);
+    return ctx.sync().then(function() {
+      var header = sheet.getRangeByIndexes(0, 0, 1, range.columnCount);
+      sheet.autoFilter.apply(header);
+      return ctx.sync().then(function(){ return 'AutoFilter added'; });
+    });
+  });
+}
+
+function clearFilters() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    sheet.autoFilter.clearCriteria();
+    return ctx.sync().then(function(){ return 'Filters cleared'; });
+  });
+}
+
+function addTotalsRow() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load(['values','rowCount','columnCount']);
+    return ctx.sync().then(function() {
+      var vals = range.values;
+      var lastRow = range.rowCount;
+      var totalsRow = sheet.getRangeByIndexes(lastRow, 0, 1, range.columnCount);
+      var j;
+      for (j = 0; j < range.columnCount; j++) {
+        var isNum = false; var i;
+        for (i = 1; i < range.rowCount; i++) { if (typeof vals[i][j] === 'number') { isNum = true; break; } }
+        var cell = sheet.getRangeByIndexes(lastRow, j, 1, 1);
+        if (isNum) {
+          var startCell = sheet.getRangeByIndexes(1, j, 1, 1);
+          var endCell   = sheet.getRangeByIndexes(range.rowCount - 1, j, 1, 1);
+          startCell.load('address'); endCell.load('address');
+        }
+        if (j === 0 && !isNum) { cell.values = [['TOTAL']]; }
+      }
+      return ctx.sync().then(function() {
+        var j2;
+        for (j2 = 0; j2 < range.columnCount; j2++) {
+          var isNum2 = false; var i2;
+          for (i2 = 1; i2 < range.rowCount; i2++) { if (typeof vals[i2][j2] === 'number') { isNum2 = true; break; } }
+          var cell2 = sheet.getRangeByIndexes(lastRow, j2, 1, 1);
+          if (isNum2) {
+            var colLetter = String.fromCharCode(65 + j2);
+            cell2.formulas = [['=SUM(' + colLetter + '2:' + colLetter + range.rowCount + ')']];
+            cell2.format.numberFormat = '#,##0.00';
+          } else if (j2 === 0) {
+            cell2.values = [['TOTAL']];
+          }
+          cell2.format.font.bold = true;
+        }
+        totalsRow.format.fill.color = COLORS.totals;
+        totalsRow.format.font.color = COLORS.white;
+        totalsRow.format.font.bold  = true;
+        return ctx.sync().then(function(){ return 'Totals row added'; });
+      });
+    });
+  });
+}
+
+function addAverageRow() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load(['values','rowCount','columnCount']);
+    return ctx.sync().then(function() {
+      var vals = range.values;
+      var lastRow = range.rowCount;
+      var avgRow = sheet.getRangeByIndexes(lastRow, 0, 1, range.columnCount);
+      var j;
+      for (j = 0; j < range.columnCount; j++) {
+        var isNum = false; var i;
+        for (i = 1; i < range.rowCount; i++) { if (typeof vals[i][j] === 'number') { isNum = true; break; } }
+        var cell = sheet.getRangeByIndexes(lastRow, j, 1, 1);
+        if (isNum) {
+          var colLetter = String.fromCharCode(65 + j);
+          cell.formulas = [['=AVERAGE(' + colLetter + '2:' + colLetter + range.rowCount + ')']];
+          cell.format.numberFormat = '#,##0.00';
+        } else if (j === 0) {
+          cell.values = [['AVERAGE']];
+        }
+        cell.format.font.bold = true;
+      }
+      avgRow.format.fill.color = COLORS.avgRow;
+      avgRow.format.font.color = COLORS.white;
+      return ctx.sync().then(function(){ return 'Average row added'; });
+    });
+  });
+}
+
+function addRankColumn() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load(['values','rowCount','columnCount']);
+    return ctx.sync().then(function() {
+      var vals = range.values;
+      var firstNumCol = -1; var j;
+      for (j = 0; j < range.columnCount; j++) {
+        if (typeof vals[1][j] === 'number') { firstNumCol = j; break; }
+      }
+      if (firstNumCol === -1) throw new Error('No numeric column found to rank');
+      var colLetter = String.fromCharCode(65 + firstNumCol);
+      var newCol = range.columnCount;
+      var headerCell = sheet.getRangeByIndexes(0, newCol, 1, 1);
+      headerCell.values = [['Rank']];
+      headerCell.format.font.bold = true;
+      headerCell.format.fill.color = COLORS.darkHeader;
+      headerCell.format.font.color = COLORS.white;
+      var i;
+      for (i = 1; i < range.rowCount; i++) {
+        var cell = sheet.getRangeByIndexes(i, newCol, 1, 1);
+        cell.formulas = [['=RANK(' + colLetter + (i+1) + ',' + colLetter + '2:' + colLetter + range.rowCount + ',0)']];
+      }
+      return ctx.sync().then(function(){ return 'Rank column added'; });
+    });
+  });
+}
+
+function addSummarySheet() {
+  return Excel.run(function(ctx) {
+    var srcSheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = srcSheet.getUsedRange();
+    srcSheet.load('name');
+    range.load(['values','rowCount','columnCount']);
+    return ctx.sync().then(function() {
+      var vals = range.values;
+      var headers = vals[0];
+      var numCols = [];
+      var j;
+      for (j = 0; j < headers.length; j++) {
+        var isNum = false; var i;
+        for (i = 1; i < range.rowCount; i++) { if (typeof vals[i][j] === 'number') { isNum = true; break; } }
+        if (isNum) numCols.push({ name: headers[j], idx: j });
+      }
+      if (numCols.length === 0) throw new Error('No numeric columns found');
+
+      var summarySheet;
+      try {
+        summarySheet = ctx.workbook.worksheets.getItem('Summary');
+        summarySheet.delete();
+      } catch(e) {}
+      summarySheet = ctx.workbook.worksheets.add('Summary');
+      summarySheet.activate();
+
+      var titleRow = summarySheet.getRangeByIndexes(0, 0, 1, 6);
+      titleRow.merge(false);
+      var titleCell = summarySheet.getRangeByIndexes(0, 0, 1, 1);
+      titleCell.values = [['Summary Report — ' + srcSheet.name]];
+      titleCell.format.font.bold = true;
+      titleCell.format.font.size = 14;
+      titleCell.format.font.color = COLORS.blueHeader;
+      titleCell.format.rowHeight = 32;
+
+      var colHeaders = ['Column', 'Count', 'Sum', 'Average', 'Min', 'Max'];
+      var hRow = summarySheet.getRangeByIndexes(1, 0, 1, 6);
+      hRow.values = [colHeaders];
+      hRow.format.fill.color = COLORS.darkHeader;
+      hRow.format.font.color  = COLORS.white;
+      hRow.format.font.bold   = true;
+      hRow.format.horizontalAlignment = 'Center';
+
+      var srcName = srcSheet.name;
+      var k;
+      for (k = 0; k < numCols.length; k++) {
+        var nc = numCols[k];
+        var colLetter = String.fromCharCode(65 + nc.idx);
+        var dataRange = colLetter + '2:' + colLetter + range.rowCount;
+        var row = summarySheet.getRangeByIndexes(2 + k, 0, 1, 6);
+        row.format.fill.color = k % 2 === 0 ? COLORS.zebraBlue1 : COLORS.zebraBlue2;
+        var nameCell = summarySheet.getRangeByIndexes(2 + k, 0, 1, 1);
+        nameCell.values = [[nc.name]];
+        nameCell.format.font.bold = true;
+        var countC = summarySheet.getRangeByIndexes(2+k,1,1,1);
+        countC.formulas = [['=COUNTA(\'' + srcName + '\'!' + dataRange + ')']];
+        var sumC = summarySheet.getRangeByIndexes(2+k,2,1,1);
+        sumC.formulas = [['=SUM(\'' + srcName + '\'!' + dataRange + ')']];
+        sumC.numberFormat = [['#,##0.00']];
+        var avgC = summarySheet.getRangeByIndexes(2+k,3,1,1);
+        avgC.formulas = [['=AVERAGE(\'' + srcName + '\'!' + dataRange + ')']];
+        avgC.numberFormat = [['#,##0.00']];
+        var minC = summarySheet.getRangeByIndexes(2+k,4,1,1);
+        minC.formulas = [['=MIN(\'' + srcName + '\'!' + dataRange + ')']];
+        minC.numberFormat = [['#,##0.00']];
+        var maxC = summarySheet.getRangeByIndexes(2+k,5,1,1);
+        maxC.formulas = [['=MAX(\'' + srcName + '\'!' + dataRange + ')']];
+        maxC.numberFormat = [['#,##0.00']];
+      }
+
+      var allData = summarySheet.getRangeByIndexes(1, 0, numCols.length + 1, 6);
+      allData.format.autofitColumns();
+      var bSides = ['EdgeTop','EdgeBottom','EdgeLeft','EdgeRight','InsideHorizontal','InsideVertical'];
+      var bi;
+      for (bi = 0; bi < bSides.length; bi++) {
+        var b = allData.format.borders.getItem(bSides[bi]);
+        b.style = 'Continuous'; b.color = COLORS.border; b.weight = 'Thin';
+      }
+      return ctx.sync().then(function(){ return 'Summary sheet created'; });
+    });
+  });
+}
+
+function addRunningTotal() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load(['values','rowCount','columnCount']);
+    return ctx.sync().then(function() {
+      var vals = range.values;
+      var firstNumCol = -1; var j;
+      for (j = 0; j < range.columnCount; j++) {
+        if (typeof vals[1][j] === 'number') { firstNumCol = j; break; }
+      }
+      if (firstNumCol === -1) throw new Error('No numeric column found');
+      var colLetter = String.fromCharCode(65 + firstNumCol);
+      var newCol = range.columnCount;
+      var hCell = sheet.getRangeByIndexes(0, newCol, 1, 1);
+      hCell.values = [['Running Total']];
+      hCell.format.font.bold = true;
+      hCell.format.fill.color = COLORS.darkHeader;
+      hCell.format.font.color = COLORS.white;
+      var i;
+      for (i = 1; i < range.rowCount; i++) {
+        var cell = sheet.getRangeByIndexes(i, newCol, 1, 1);
+        cell.formulas = [['=SUM(' + colLetter + '2:' + colLetter + (i + 1) + ')']];
+        cell.numberFormat = [['#,##0.00']];
+      }
+      return ctx.sync().then(function(){ return 'Running total column added'; });
+    });
+  });
+}
+
+function addPctOfTotal() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load(['values','rowCount','columnCount']);
+    return ctx.sync().then(function() {
+      var vals = range.values;
+      var firstNumCol = -1; var j;
+      for (j = 0; j < range.columnCount; j++) {
+        if (typeof vals[1][j] === 'number') { firstNumCol = j; break; }
+      }
+      if (firstNumCol === -1) throw new Error('No numeric column found');
+      var colLetter = String.fromCharCode(65 + firstNumCol);
+      var newCol = range.columnCount;
+      var hCell = sheet.getRangeByIndexes(0, newCol, 1, 1);
+      hCell.values = [['% of Total']];
+      hCell.format.font.bold = true;
+      hCell.format.fill.color = COLORS.darkHeader;
+      hCell.format.font.color = COLORS.white;
+      var i;
+      for (i = 1; i < range.rowCount; i++) {
+        var cell = sheet.getRangeByIndexes(i, newCol, 1, 1);
+        cell.formulas = [['=' + colLetter + (i+1) + '/SUM($' + colLetter + '$2:$' + colLetter + '$' + range.rowCount + ')']];
+        cell.numberFormat = [['0.00%']];
+      }
+      return ctx.sync().then(function(){ return '% of Total column added'; });
+    });
+  });
+}
+
+function addAvgFormula() {
+  return Excel.run(function(ctx) {
+    var colsInput = document.getElementById('avgCols').value.trim().toUpperCase();
+    var outCol    = document.getElementById('avgOut').value.trim().toUpperCase();
+    var outName   = document.getElementById('avgName').value.trim() || 'Average';
+    if (!colsInput || !outCol) throw new Error('Enter column letters and output column');
+    var cols = colsInput.split(',');
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load('rowCount');
+    return ctx.sync().then(function() {
+      var outIdx = outCol.charCodeAt(0) - 65;
+      var hCell = sheet.getRangeByIndexes(0, outIdx, 1, 1);
+      hCell.values = [[outName]];
+      hCell.format.font.bold = true;
+      hCell.format.fill.color = COLORS.darkHeader;
+      hCell.format.font.color = COLORS.white;
+      var i;
+      for (i = 1; i < range.rowCount; i++) {
+        var parts = [];
+        var c;
+        for (c = 0; c < cols.length; c++) {
+          parts.push(cols[c].trim() + (i + 1));
+        }
+        var cell = sheet.getRangeByIndexes(i, outIdx, 1, 1);
+        cell.formulas = [['=AVERAGE(' + parts.join(',') + ')']];
+        cell.numberFormat = [['#,##0.00']];
+      }
+      return ctx.sync().then(function(){ return outName + ' column added in column ' + outCol; });
+    });
+  });
+}
+
+// ── INSERT FUNCTIONS ───────────────────────────────────────
+function insertChart(type) {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load(['rowCount','columnCount']);
+    return ctx.sync().then(function() {
+      var chart = sheet.charts.add(type, range, 'Auto');
+      chart.setPosition(
+        sheet.getRangeByIndexes(range.rowCount + 2, 0, 1, 1),
+        sheet.getRangeByIndexes(range.rowCount + 20, 7, 1, 1)
+      );
+      chart.title.text = type + ' Chart';
+      chart.legend.position = 'Bottom';
+      return ctx.sync().then(function(){ return type + ' chart inserted'; });
+    });
+  });
+}
+function insertBarChart()  { return insertChart('ColumnClustered'); }
+function insertLineChart() { return insertChart('Line'); }
+function insertPieChart()  { return insertChart('Pie'); }
+function insertAreaChart() { return insertChart('Area'); }
+
+function insertRowsAbove() {
+  return Excel.run(function(ctx) {
+    var count = parseInt(document.getElementById('insertCount').value) || 1;
+    var range = ctx.workbook.getSelectedRange();
+    range.load('rowIndex');
+    return ctx.sync().then(function() {
+      var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+      var ins = sheet.getRangeByIndexes(range.rowIndex, 0, count, 1);
+      ins.insert('Down');
+      return ctx.sync().then(function(){ return count + ' row(s) inserted above'; });
+    });
+  });
+}
+
+function insertRowsBelow() {
+  return Excel.run(function(ctx) {
+    var count = parseInt(document.getElementById('insertCount').value) || 1;
+    var range = ctx.workbook.getSelectedRange();
+    range.load(['rowIndex','rowCount']);
+    return ctx.sync().then(function() {
+      var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+      var ins = sheet.getRangeByIndexes(range.rowIndex + range.rowCount, 0, count, 1);
+      ins.insert('Down');
+      return ctx.sync().then(function(){ return count + ' row(s) inserted below'; });
+    });
+  });
+}
+
+function addHeaderRow() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load('columnCount');
+    return ctx.sync().then(function() {
+      var top = sheet.getRangeByIndexes(0, 0, 1, range.columnCount);
+      top.insert('Down');
+      var newHeader = sheet.getRangeByIndexes(0, 0, 1, range.columnCount);
+      newHeader.format.fill.color = COLORS.darkHeader;
+      newHeader.format.font.color = COLORS.white;
+      newHeader.format.font.bold  = true;
+      newHeader.format.rowHeight  = 28;
+      return ctx.sync().then(function(){ return 'Header row inserted at top'; });
+    });
+  });
+}
+
+function addTimestamp() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load(['rowCount','columnCount']);
+    return ctx.sync().then(function() {
+      var cell = sheet.getRangeByIndexes(range.rowCount + 1, 0, 1, 1);
+      var now = new Date();
+      cell.values = [['Generated: ' + now.toLocaleString()]];
+      cell.format.font.italic = true;
+      cell.format.font.color  = '#64748B';
+      return ctx.sync().then(function(){ return 'Timestamp added'; });
+    });
+  });
+}
+
+function addNewSheet() {
+  return Excel.run(function(ctx) {
+    var name = document.getElementById('newSheetName').value.trim() || 'New Sheet';
+    var sheet = ctx.workbook.worksheets.add(name);
+    sheet.activate();
+    return ctx.sync().then(function(){ return 'Sheet "' + name + '" created'; });
+  });
+}
+
+function duplicateSheet() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    sheet.load('name');
+    return ctx.sync().then(function() {
+      sheet.copy('End');
+      return ctx.sync().then(function(){ return 'Sheet "' + sheet.name + '" duplicated'; });
+    });
+  });
+}
+
+// ── CLEAN FUNCTIONS ────────────────────────────────────────
+function removeDuplicates() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load(['values','rowCount','columnCount']);
+    return ctx.sync().then(function() {
+      var vals = range.values;
+      var seen = {};
+      var toDelete = [];
+      var i;
+      for (i = 1; i < vals.length; i++) {
+        var key = JSON.stringify(vals[i]);
+        if (seen[key]) { toDelete.push(i); } else { seen[key] = true; }
+      }
+      var removed = 0;
+      for (i = toDelete.length - 1; i >= 0; i--) {
+        var row = sheet.getRangeByIndexes(toDelete[i], 0, 1, range.columnCount);
+        row.delete('Up');
+        removed++;
+      }
+      return ctx.sync().then(function(){ return removed + ' duplicate row(s) removed'; });
+    });
+  });
+}
+
+function removeBlankRows() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load(['values','rowCount','columnCount']);
+    return ctx.sync().then(function() {
+      var vals = range.values;
+      var toDelete = [];
+      var i, j;
+      for (i = 1; i < vals.length; i++) {
+        var allBlank = true;
+        for (j = 0; j < vals[i].length; j++) {
+          if (vals[i][j] !== '' && vals[i][j] !== null) { allBlank = false; break; }
+        }
+        if (allBlank) toDelete.push(i);
+      }
+      for (i = toDelete.length - 1; i >= 0; i--) {
+        var row = sheet.getRangeByIndexes(toDelete[i], 0, 1, range.columnCount);
+        row.delete('Up');
+      }
+      return ctx.sync().then(function(){ return toDelete.length + ' blank row(s) removed'; });
+    });
+  });
+}
+
+function clearFormatting() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.clear('Formats');
+    return ctx.sync().then(function(){ return 'All formatting cleared'; });
+  });
+}
+
+function clearContents() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = ctx.workbook.getSelectedRange();
+    range.clear('Contents');
+    return ctx.sync().then(function(){ return 'Cell contents cleared'; });
+  });
+}
+
+function trimSpaces() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load(['values','rowCount','columnCount']);
+    return ctx.sync().then(function() {
+      var vals = range.values;
+      var newVals = [];
+      var i, j;
+      for (i = 0; i < vals.length; i++) {
+        var row = [];
+        for (j = 0; j < vals[i].length; j++) {
+          row.push(typeof vals[i][j] === 'string' ? vals[i][j].trim() : vals[i][j]);
+        }
+        newVals.push(row);
+      }
+      range.values = newVals;
+      return ctx.sync().then(function(){ return 'Whitespace trimmed from all text cells'; });
+    });
+  });
+}
+
+function toUpperCase() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load(['values','rowCount','columnCount']);
+    return ctx.sync().then(function() {
+      var vals = range.values;
+      var i, j;
+      for (i = 0; i < vals.length; i++) {
+        for (j = 0; j < vals[i].length; j++) {
+          if (typeof vals[i][j] === 'string') vals[i][j] = vals[i][j].toUpperCase();
+        }
+      }
+      range.values = vals;
+      return ctx.sync().then(function(){ return 'All text converted to UPPERCASE'; });
+    });
+  });
+}
+
+function toLowerCase() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load(['values','rowCount','columnCount']);
+    return ctx.sync().then(function() {
+      var vals = range.values;
+      var i, j;
+      for (i = 0; i < vals.length; i++) {
+        for (j = 0; j < vals[i].length; j++) {
+          if (typeof vals[i][j] === 'string') vals[i][j] = vals[i][j].toLowerCase();
+        }
+      }
+      range.values = vals;
+      return ctx.sync().then(function(){ return 'All text converted to lowercase'; });
+    });
+  });
+}
+
+function toProperCase() {
+  return Excel.run(function(ctx) {
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load(['values','rowCount','columnCount']);
+    return ctx.sync().then(function() {
+      var vals = range.values;
+      var i, j;
+      for (i = 0; i < vals.length; i++) {
+        for (j = 0; j < vals[i].length; j++) {
+          if (typeof vals[i][j] === 'string') {
+            vals[i][j] = vals[i][j].replace(/\w\S*/g, function(txt) {
+              return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+            });
+          }
+        }
+      }
+      range.values = vals;
+      return ctx.sync().then(function(){ return 'Text converted to Title Case'; });
+    });
+  });
+}
+
+function findReplace() {
+  return Excel.run(function(ctx) {
+    var findTxt    = document.getElementById('findTxt').value;
+    var replaceTxt = document.getElementById('replaceTxt').value;
+    if (!findTxt) throw new Error('Enter text to find');
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load(['values','rowCount','columnCount']);
+    return ctx.sync().then(function() {
+      var vals = range.values;
+      var count = 0; var i, j;
+      for (i = 0; i < vals.length; i++) {
+        for (j = 0; j < vals[i].length; j++) {
+          if (typeof vals[i][j] === 'string' && vals[i][j].indexOf(findTxt) !== -1) {
+            vals[i][j] = vals[i][j].split(findTxt).join(replaceTxt);
+            count++;
+          }
+        }
+      }
+      range.values = vals;
+      return ctx.sync().then(function(){ return count + ' replacement(s) made'; });
+    });
+  });
+}
+
+function fillEmpty() {
+  return Excel.run(function(ctx) {
+    var fillVal = document.getElementById('fillVal').value;
+    if (fillVal === '') throw new Error('Enter a value to fill with');
+    var numVal = parseFloat(fillVal);
+    var useNum = !isNaN(numVal);
+    var sheet = ctx.workbook.worksheets.getActiveWorksheet();
+    var range = sheet.getUsedRange();
+    range.load(['values','rowCount','columnCount']);
+    return ctx.sync().then(function() {
+      var vals = range.values;
+      var count = 0; var i, j;
+      for (i = 1; i < vals.length; i++) {
+        for (j = 0; j < vals[i].length; j++) {
+          if (vals[i][j] === '' || vals[i][j] === null) {
+            vals[i][j] = useNum ? numVal : fillVal;
+            count++;
+          }
+        }
+      }
+      range.values = vals;
+      return ctx.sync().then(function(){ return count + ' empty cell(s) filled with "' + fillVal + '"'; });
+    });
+  });
+}
+
+Office.onReady(function(info) {
+  if (info.host !== Office.HostType.Excel) {
+    document.getElementById('log').innerHTML = '<span class="lerr">Not running inside Excel.</span>';
+  }
+});
 </script>
 </body>
 </html>
