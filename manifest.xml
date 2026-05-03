@@ -12,14 +12,14 @@
   <DefaultLocale>en-US</DefaultLocale>
 
   <DisplayName DefaultValue="AI Excel Agent" />
-  <Description DefaultValue="AI-powered Excel automation using Google Gemini. Free, self-healing, runs inside Excel." />
+  <Description DefaultValue="AI-powered Excel automation using Groq. Free, self-healing, runs inside Excel." />
 
   <IconUrl DefaultValue="https://Avikt001.github.io/ai-excel-agent/icon-32.png" />
   <HighResolutionIconUrl DefaultValue="https://Avikt001.github.io/ai-excel-agent/icon-64.png" />
   <SupportUrl DefaultValue="https://github.com/Avikt001/ai-excel-agent" />
 
   <AppDomains>
-    <AppDomain>https://generativelanguage.googleapis.com</AppDomain>
+    <AppDomain>https://api.groq.com</AppDomain>
   </AppDomains>
 
   <Hosts>
